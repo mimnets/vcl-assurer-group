@@ -1,0 +1,398 @@
+// Assurer project styles (Milestone 0 placeholder theme).
+// Colors are deliberately neutral; brand tokens arrive in a later milestone.
+
+:root {
+  --assurer-navy: #0b2545;
+  --assurer-blue: #13315c;
+  --assurer-accent: #1f7a8c;
+  --assurer-light: #eef4ed;
+  --assurer-text: #1d2733;
+  --assurer-radius: 10px;
+}
+
+body {
+  color: var(--assurer-text);
+}
+
+.assurer-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.assurer-demo-notice {
+  padding: 6px 16px;
+  background: #fff3cd;
+  color: #664d03;
+  font-size: 13px;
+  text-align: center;
+}
+
+.assurer-header,
+.assurer-main,
+.assurer-footer {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.assurer-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 16px;
+}
+
+.assurer-header__brand {
+  color: var(--assurer-navy);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+
+  span { color: var(--assurer-accent); }
+  &:visited { color: var(--assurer-navy); }
+}
+
+.assurer-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assurer-main {
+  flex-grow: 1;
+}
+
+.assurer-footer {
+  padding: 32px 16px;
+  font-size: 14px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.assurer-hint {
+  padding: 16px;
+  border: 1px dashed var(--assurer-accent);
+  border-radius: var(--assurer-radius);
+  background: var(--assurer-light);
+}
+
+// Buttons
+.assurer-button {
+  display: inline-block;
+  padding: 12px 24px;
+  border: 2px solid var(--assurer-accent);
+  border-radius: 999px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+
+  &--primary,
+  &--primary:visited {
+    background: var(--assurer-accent);
+    color: #fff;
+  }
+
+  &--outline,
+  &--outline:visited {
+    background: transparent;
+    color: var(--assurer-accent);
+  }
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    filter: brightness(1.1);
+  }
+}
+
+// Hero
+.assurer-hero {
+  position: relative;
+  margin: 0 0 48px;
+  padding: 96px 24px;
+  border-radius: var(--assurer-radius);
+  background-color: var(--assurer-navy);
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &--overlay-dark::before { background: rgba(11, 37, 69, 0.6); }
+  &--overlay-light::before { background: rgba(255, 255, 255, 0.7); }
+  &--overlay-light { color: var(--assurer-navy); }
+
+  h1, h2 {
+    margin: 0 0 16px;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    text-align: left;
+  }
+
+  p { font-size: 1.15rem; }
+}
+
+.assurer-hero__inner {
+  position: relative;
+  max-width: 720px;
+}
+
+.assurer-hero__eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.85rem !important;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.assurer-hero__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.assurer-hero--overlay-dark .assurer-button--outline,
+.assurer-hero--overlay-dark .assurer-button--outline:visited,
+.assurer-hero--overlay-none .assurer-button--outline,
+.assurer-hero--overlay-none .assurer-button--outline:visited {
+  border-color: #fff;
+  color: #fff;
+}
+
+// Slideshow
+.assurer-slideshow {
+  position: relative;
+  margin: 0 0 48px;
+}
+
+.assurer-slideshow__track {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  border-radius: var(--assurer-radius);
+  background: var(--assurer-light);
+  overflow: hidden;
+}
+
+.assurer-slideshow__slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s;
+
+  &.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.assurer-slideshow__caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 12px 16px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.65));
+  color: #fff;
+}
+
+.assurer-slideshow__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+
+  button {
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+}
+
+.assurer-slideshow__prev,
+.assurer-slideshow__next {
+  padding: 4px 12px;
+  color: var(--assurer-navy);
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.assurer-slideshow__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.assurer-slideshow__dot {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border-radius: 50%;
+  background: #c3cdd6 !important;
+
+  &.is-active { background: var(--assurer-accent) !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assurer-slideshow__slide { transition: none; }
+}
+
+// Product cards
+.assurer-products {
+  margin: 0 0 48px;
+}
+
+.assurer-products__intro {
+  max-width: 720px;
+  margin: 0 auto 24px;
+  text-align: center;
+}
+
+// The cards area renders Apostrophe's area wrapper; lay out its children.
+.assurer-products__grid > [data-apos-area],
+.assurer-products__grid > .apos-area {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .assurer-products__grid > [data-apos-area],
+  .assurer-products__grid > .apos-area {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .assurer-products__grid--cols-3 > [data-apos-area],
+  .assurer-products__grid--cols-3 > .apos-area {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .assurer-products__grid--cols-4 > [data-apos-area],
+  .assurer-products__grid--cols-4 > .apos-area {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.assurer-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid #dde3e8;
+  border-radius: var(--assurer-radius);
+  background: #fff;
+  overflow: hidden;
+}
+
+.assurer-card__media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.assurer-card__body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.assurer-card__badge {
+  align-self: flex-start;
+  margin-bottom: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--assurer-light);
+  color: var(--assurer-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.assurer-card__title {
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+.assurer-card__link {
+  margin-top: auto;
+  padding-top: 12px;
+  color: var(--assurer-accent);
+  font-weight: 600;
+}
+
+// Contact form (@apostrophecms/form with classPrefix `assurer-form`)
+.apos-form,
+[data-apos-form-form] {
+  max-width: 640px;
+  margin: 0 auto 48px;
+}
+
+.assurer-form__label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.assurer-form__input,
+.assurer-form__textarea,
+.assurer-form__select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #b8c2cc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.assurer-form__error {
+  color: #b02a37;
+  font-size: 14px;
+}
+
+.assurer-form__submit {
+  margin-top: 16px;
+  padding: 12px 28px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--assurer-accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    filter: brightness(1.1);
+  }
+}
+
+.assurer-form input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
