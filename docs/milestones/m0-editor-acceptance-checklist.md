@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Purpose** | Close decision **D-M0-1**: confirm, by a person using the real admin UI, the editing paths that M0 verified only through the API or a headless browser |
-| **Prepared** | 2026-10-19 (`m0-005`) |
+| **Prepared** | 2026-10-19 (`m0-005`); rows 21–23 added 2026-10-19 (`m0-006`) |
 | **Time** | about 20–30 minutes |
 | **Environment** | Local only: `npm run dev`, then http://localhost:3000. Not on any shared or production system. |
 | **Result goes to** | a dated report `docs/engineering/reports/YYYY/MM/YYYY-MM-DD-m0-NNN-editor-acceptance.report.md`. Attach screenshots only if they contain no credentials or personal data. |
@@ -62,11 +62,18 @@ Mark each row **Pass**, **Fail** (with a one-line note) or **N/A**.
 | 18 | Slideshow: click next / previous / a dot | Slides change | |
 | 19 | Archive the "Acceptance Test" page (Pages manager → archive) | It disappears from navigation and the anonymous view | |
 | 20 | Log out | Returned to the public site; admin bar gone | |
+| 21 | *(before row 20)* Home page → **Edit** → open the slideshow widget: change a caption, add an image, drag a slide to a new position; save, preview, then ⋮ → **discard draft** | Slides show in the new order in the draft; after discarding, the published slideshow is unchanged | |
+| 22 | Ask the developer to confirm that the row-17 submission was stored (`aposFormSubmissions`). Community Edition has no screen for browsing submissions (D-M0-4) | Submission present with the demo values | |
+| 23 | *(after row 20)* Logged out, open `/acceptance-test` and http://localhost:3000/api/v1/@apostrophecms/page?aposMode=draft | Page not found; the API returns an error (401/403/404), no draft content | |
+
+Added in m0-006 (rows 21–23) to cover slideshow configuration, submission persistence and
+access after logout. If your account is an **editor**, the Styles panel (rows 12–13) may not be
+available to that role. Mark it **N/A (role)**, not Fail.
 
 ## Pass criteria
 
 - **Rows 1–11 and 15–17 must pass.** They are the M0 editing and validation requirements.
-- Rows 12–14 and 18–20 should pass. A failure there is recorded and triaged, and doesn't block
+- Rows 12–14 and 18–23 should pass. A failure there is recorded and triaged, and doesn't block
   closure on its own unless it is a security or data-loss issue.
 - Any **data loss, crash, or content visible to the anonymous visitor before publishing** is an
   automatic fail.
