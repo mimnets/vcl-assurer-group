@@ -52,6 +52,19 @@ in `docs/architecture/decisions/`. If a request conflicts with a rule, stop and 
   (`docs/engineering/reports/YYYY/MM/YYYY-MM-DD-mN-NNN-*.report.md`), indexed in
   `docs/engineering/INDEX.md`. Never rewrite historical reports or invent past prompts.
 
+### Sessions and context (Claude Code and other agents)
+- Start a **new session at every new milestone**, and for any materially different task once
+  the earlier context no longer helps.
+- At the start of every session, read this file, the ADRs relevant to the task, the latest
+  reports in `docs/engineering/INDEX.md`, and the Git state (branch, uncommitted changes,
+  `origin/main`).
+- The repository documents are the source of truth. Do not rely on an earlier conversation's
+  context; if something matters, it must be in a tracked document.
+- Archive each task's prompt and a sanitized report under the ISO-date naming convention
+  (Records, below). Never archive raw transcripts or tool output containing secrets.
+- Finish each milestone with an explicit handoff document and an instruction to start a fresh
+  session for the next milestone.
+
 ### Git and approvals
 - Work on short-lived branches (`<type>/mN-NNN-description`); merge to protected `main` by
   pull request only. Commit messages follow Conventional Commits.

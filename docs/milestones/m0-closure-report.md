@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Status** | **PENDING.** Closure requires (1) the human editor walkthrough to pass, (2) the M0-005 documentation PR to be merged, and (3) GitHub branch protection to be checked with its actual status documented. |
-| **Prepared** | 2026-10-19 (`m0-005`); updated 2026-10-19 after the PR #1 merge (m0-005 reconciliation) |
-| **Milestone tasks** | m0-001 · m0-002 · m0-003 · m0-004 · m0-005 (see [INDEX](../engineering/INDEX.md)) |
-| **Repository** | `github.com/mimnets/vcl-assurer-group` (private). `main` = `96039f8d7160cb01bdc9f9604f6d47d0e068f660` (merge of PR #1), verified 2026-10-19 18:15 +06:00. |
+| **Status** | **PENDING** (re-assessed in `m0-006`, 2026-10-19). Two gates remain: (1) the human editor walkthrough must pass, and (2) the GitHub branch-protection status must be checked and its actual status documented. The M0-005 PR is merged and all automated checks pass. |
+| **Prepared** | 2026-10-19 (`m0-005`); updated 2026-10-19 after the PR #1 merge (m0-005 reconciliation) and in the final closure check (`m0-006`) |
+| **Milestone tasks** | m0-001 · m0-002 · m0-003 · m0-004 · m0-005 · m0-006 (see [INDEX](../engineering/INDEX.md)) |
+| **Repository** | `github.com/mimnets/vcl-assurer-group` (private). `main` = `003aac3ea8a850bf897f09aef694485daf2e189f` (merge of PR #2), verified 2026-10-19 18:24 +06:00 (`m0-006`). |
 | **Closed by** | *(name, date, once the walkthrough passes)* |
 
 ## 1. Objective
@@ -41,26 +41,32 @@ rebuild.
 | No paid-license requirement | ✅ | Dependency audit |
 | Styles Editor | ⚠️ opens in UI; change applied via API | **Walkthrough rows 12–13** |
 
-All automated suites passed on the latest run (2026-10-19, after the push): lint clean, smoke
-14/14, editor workflow 15/15, persistence 7/7.
+All automated suites passed on the latest run (2026-10-19, `m0-006`): lint clean, smoke 14/14,
+editor workflow 15/15, persistence 7/7, production asset build succeeds. The ⚠️ rows still
+need the human walkthrough; automated checks don't replace it.
 
 ## 4. Closure gates
 
 | Gate | Blocking? | Status |
 |---|---|---|
-| Human editor walkthrough passes ([checklist](./m0-editor-acceptance-checklist.md)), recorded in a dated report | **Yes** | Open (D-M0-1) |
+| Human editor walkthrough passes ([checklist](./m0-editor-acceptance-checklist.md)), recorded in a dated report | **Yes** | Open (D-M0-1): not performed as of m0-006. The checklist now covers all items in the m0-006 prompt (rows 1–23). |
 | M0-004 post-push-results PR merged | **Yes** | ✅ **Done:** PR #1 merged by the owner as `96039f8`; the merged tree equals the reviewed head `9f9fe12` (verified) |
-| M0-005 documentation PR (this closure report, checklist, register, index, m0-005 records) merged | **Yes** | Open: branch `docs/m0-005-governance-closure` pushed; PR awaiting the owner (D-GIT-5) |
-| GitHub branch protection checked by the owner and its **actual** status documented | **Yes** | Open: not verified (D-GIT-3). The agent cannot read repository settings. |
+| M0-005 documentation PR (this closure report, checklist, register, index, m0-005 records) merged | **Yes** | ✅ **Done:** PR #2 merged as `003aac3`; merged tree equals the reviewed head `0ea6333` (verified in m0-006) |
+| GitHub branch protection checked by the owner and its **actual** status documented | **Yes** | Open: still not verified in m0-006 (D-GIT-3). Private repository; no CLI, browser or API access to settings. Owner steps: [m0-006 report §3](../engineering/reports/2026/10/2026-10-19-m0-006-final-m0-closure.report.md#3-github-governance). |
+| Required application tests pass | **Yes** | ✅ lint, 14/14, 15/15, 7/7, build (m0-006) |
+| No unresolved critical blocking issue | **Yes** | ✅ none found (m0-006) |
 
 ## 5. Carried into Milestone 1 (not M0 blockers)
 
 D-M0-2 (PostgreSQL acceptance test) · D-M0-3/4 (form email, submission access and retention) ·
 D-M0-5 (security findings S1–S9) · D-M0-7 (licensing sign-off) · D-DB-2/3/4 (provider, media
-storage, RPO/RTO) · D-CI-1 (CI workflow). See the [decision register](../engineering/decision-register.md).
+storage, RPO/RTO) · D-CI-1 (CI workflow) · D-M0-9 (backup archives hold secrets). See the
+[decision register](../engineering/decision-register.md), the
+[M1 execution plan](./m1-execution-plan.md) and the [M1 handoff](./m1-handoff.md).
 
 ## 6. Recommendation
 
-Close Milestone 0 once the walkthrough passes, the M0-005 documentation PR is merged, and the branch-protection status has been checked and recorded. Start
-Milestone 1 with the `main` ruleset in place, then CI (D-CI-1) and the PostgreSQL acceptance
-test (D-M0-2), each on a feature branch through a PR.
+Close Milestone 0 once the walkthrough passes and the branch-protection status has been checked
+and recorded. Then fill in **Closed by** above, set the status to **CLOSED**, and start
+Milestone 1 in a new session with `m1-007` (CI), then the PostgreSQL acceptance test (`m1-008`),
+each on a feature branch through a PR.
