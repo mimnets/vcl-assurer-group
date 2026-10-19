@@ -70,6 +70,24 @@ Added in m0-006 (rows 21–23) to cover slideshow configuration, submission pers
 access after logout. If your account is an **editor**, the Styles panel (rows 12–13) may not be
 available to that role. Mark it **N/A (role)**, not Fail.
 
+## Agent-executed browser results (m0-007, 2026-10-19)
+
+> **Agent-executed, not a human walkthrough.** Run through the real admin UI with the Claude in
+> Chrome extension as a disposable **Editor** (`m0-007-demo-editor`), on a test page "M0-007
+> Agent Test (Demo)". Details and evidence:
+> [m0-007 report](../engineering/reports/2026/10/2026-10-19-m0-007-browser-editor-acceptance.report.md).
+
+| Rows | Result |
+|---|---|
+| 1–7, 11–21, 23 | **PASS** in the browser |
+| 8–10 | **PASS**. Editor actions in the browser; anonymous view checked by a cookie-less HTTP request. |
+| 22 | **PASS** (developer check of the stored submission) |
+| 12–13 | The Styles panel **is** available to the editor role |
+| 7 | Page widgets have no drag handle; reordered with the **up/down arrows** (allowed by the row). Slides can be dragged in the slideshow's slides list (row 21). |
+
+The human usability check that remains is in
+[`m0-human-usability-checklist.md`](./m0-human-usability-checklist.md).
+
 ## Pass criteria
 
 - **Rows 1–11 and 15–17 must pass.** They are the M0 editing and validation requirements.
