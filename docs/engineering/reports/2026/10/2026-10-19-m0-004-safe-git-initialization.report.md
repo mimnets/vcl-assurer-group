@@ -234,4 +234,16 @@ Open in the [decision register](../../../decision-register.md): D-M0-1 (walkthro
 
 ## Post-push results
 
-*Recorded after the push in a follow-up commit.*
+Added in a follow-up commit on branch `docs/m0-004-post-push-results` (not on `main`). It is
+proposed for merge by pull request; the initial commit cannot contain its own SHA.
+
+| Item | Result |
+|---|---|
+| Remote re-checked immediately before the push | `git ls-remote` exit 0, **zero refs** |
+| Remote URL | `https://github.com/mimnets/vcl-assurer-group.git` (no embedded credentials) |
+| Initial commit | `9b977236b54ba9ee2b2bf58b3e0d6110526c7869`, "chore: import milestone 0 foundation and engineering governance", 85 files, author Monirul Islam |
+| Push | `git push -u origin main` (normal, no force): `* [new branch] main -> main`, exit 0 |
+| Remote refs after the push | `HEAD` and `refs/heads/main` → `9b97723…`; no other refs |
+| Remote matches source | after `git fetch`: `origin/main` = local `HEAD`; tree `618c6b00db9d04bde6bb24f95c8cf5cb086fa360` identical; `git diff HEAD origin/main` empty; 85 files; no `.env`, data, uploads, databases, dumps or backups |
+| Branch protection | **Not enabled.** Owner action D-GIT-3 (Task 7) |
+| Post-push regression | `npm run lint` clean · `test:smoke` **14/14** · `test:workflow` **15/15** · `test:persistence` **7/7** · bearer tokens **0** · `git status` clean, `main...origin/main` in sync |
