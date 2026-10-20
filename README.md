@@ -44,6 +44,12 @@ Log in at `/login`. The server binds to `127.0.0.1` only (override with `ADDRESS
 | `npm run test:persistence` | Re-checks published state, e.g. after a restart |
 | `npm run lint` | ESLint |
 | `npm run build` | Production asset build (needs `APOS_RELEASE_ID`) |
+| `npm run test:ci` | Same isolated run as CI: throwaway SQLite database and uploads in the temp directory, generated secrets, no `.env`; smoke, workflow and persistence (port 3100) |
+| `npm run test:unit` | Unit tests for the audit gate and the test-admin guard |
+| `npm run audit:check` | `npm audit` against `security/audit-baseline.json` |
+
+CI (GitHub Actions, `.github/workflows/ci.yml`) runs lint, build, tests, gitleaks and the
+audit check on every pull request. See [git-and-ci.md](./docs/engineering/git-and-ci.md#ci-github-actions).
 
 ## Project modules
 
@@ -54,6 +60,7 @@ Log in at `/login`. The server binds to `127.0.0.1` only (override with `ADDRESS
 | `assurer-product-grid-widget` | Product section; cards are widgets in an area (add / reorder in place) |
 | `assurer-product-card-widget` | Single product card |
 | `assurer-demo` | `assurer-demo:seed` task for demonstration content |
+| `assurer-test` | `assurer-test:ensure-admin`: creates the CI test admin; refuses anything but a temporary SQLite database |
 | `@apostrophecms/form` (+ field widgets) | Contact forms (Community, MIT) |
 
 See [AGENTS.md](./AGENTS.md) for template and code conventions.

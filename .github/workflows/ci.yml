@@ -1,0 +1,131 @@
+# CI: lint, build, isolated tests, secret scanning and dependency audit (m1-009).
+# Spec: docs/milestones/m1-009-ci-and-security-scanning-spec.md
+#
+# - No repository secrets are used. The session secret and test-admin
+#   password are generated per run and masked.
+# - Tests run on a fresh SQLite database under RUNNER_TEMP (npm run test:ci).
+# - Third-party actions are pinned to full commit SHAs (version in comment).
+#   Updating a pin is a dependency change and needs approval (AGENTS.md).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run lint
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Production build
+        run: |
+          # The app refuses to load without a session secret; generate a
+          # throwaway one and mask it before use.
+          APOS_SESSION_SECRET="$(openssl rand -hex 32)"
+          echo "::add-mask::$APOS_SESSION_SECRET"
+          export APOS_SESSION_SECRET
+          export APOS_DB_URI="sqlite://$RUNNER_TEMP/build-$GITHUB_RUN_ID.sqlite"
+          export APOS_RELEASE_ID="$GITHUB_SHA"
+          npm run build
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Unit tests (audit gate, test-admin guard)
+        run: npm run test:unit
+      - name: Smoke, editor workflow and persistence on a throwaway database
+        # Generates and masks its own secrets; database and uploads live in
+        # RUNNER_TEMP and are deleted at the end. Prints the server log tail
+        # on failure. See scripts/run-ci-tests.mjs.
+        run: npm run test:ci
+
+  secrets:
+    name: secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      # SHA-256 of gitleaks_8.30.1_linux_x64.tar.gz, from the release's
+      # gitleaks_8.30.1_checksums.txt (verified 2026-10-20).
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install gitleaks (pinned release, checksum verified)
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c -
+          mkdir gitleaks-bin
+          tar -xzf gitleaks.tar.gz -C gitleaks-bin gitleaks
+          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
+      - name: Scan full git history (findings redacted)
+        run: gitleaks git --config .gitleaks.toml --redact --no-banner --verbose .
+
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      # npm audit reads package-lock.json; no install is needed.
+      - name: npm audit against security/audit-baseline.json
+        run: npm run audit:check

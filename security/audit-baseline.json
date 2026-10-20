@@ -1,0 +1,58 @@
+{
+  "$comment": "Accepted npm audit advisories (m1-009). Checked by scripts/audit-check.mjs in CI. One entry per advisory (GHSA ID). For high and critical advisories, `affects` lists every package npm flagged through that advisory when it was accepted; a new package means a new dependency path and fails CI. reviewBy is at most maxReviewDays after accepted; an expired entry fails CI until it is re-decided. Re-decided under D-M0-5 (S5/S6) in m1-011. Never use `npm audit fix --force`: it would downgrade apostrophe to 3.x and nodemon to 1.x.",
+  "recorded": "2026-10-20",
+  "task": "m1-009",
+  "auditSummary": "43 package findings (38 moderate, 5 high, 0 critical) from 3 advisories (1 high, 2 moderate). Production-only (--omit=dev): 42 findings, 4 high.",
+  "maxReviewDays": 90,
+  "advisories": [
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "severity": "high",
+      "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+      "range": "<=3.0.3",
+      "scope": "prod (apostrophe -> chokidar -> braces; nunjucks also lists chokidar) and dev (nodemon -> chokidar -> braces)",
+      "affects": [
+        "apostrophe",
+        "braces",
+        "chokidar",
+        "nodemon",
+        "nunjucks"
+      ],
+      "reason": "No braces release outside the affected range (<=3.0.3) is available to this tree; npm's only fix is a semver-major downgrade of apostrophe (to 3.x) and nodemon (to 1.x). apostrophe uses chokidar to watch view and asset directories during development; the watched glob patterns come from the application, not from visitors. nodemon runs on developer machines only.",
+      "owner": "Architect / security (D-M0-5)",
+      "remediation": "m1-011: check for a patched braces or chokidar line and whether an npm override is safe; otherwise re-accept with a new date",
+      "decision": "D-M0-5 (S5/S6)",
+      "accepted": "2026-10-20",
+      "reviewBy": "2027-01-18"
+    },
+    {
+      "id": "GHSA-cp6q-959q-f8rh",
+      "package": "@tiptap/core",
+      "severity": "moderate",
+      "title": "Tiptap: mergeAttributes() turns an own __proto__ key into inherited executable DOM attributes",
+      "range": ">=2.0.0-alpha.0 <3.30.4",
+      "scope": "prod (apostrophe rich-text editor, admin UI only)",
+      "reason": "apostrophe 4.34.0 depends on Tiptap 2.x (@tiptap/starter-kit ^2.27.2) for the rich-text editor, which only logged-in editors load. The advisory is fixed in Tiptap 3.30.4, outside apostrophe's supported range.",
+      "owner": "Architect / security (D-M0-5)",
+      "remediation": "m1-011: upgrade when an apostrophe release moves to a fixed Tiptap line; review editor role access (D-M0-11)",
+      "decision": "D-M0-5 (S5/S6)",
+      "accepted": "2026-10-20",
+      "reviewBy": "2027-01-18"
+    },
+    {
+      "id": "GHSA-hp3w-g68c-fv3c",
+      "package": "sprintf-js",
+      "severity": "moderate",
+      "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+      "range": "<=1.1.3",
+      "scope": "prod (apostrophe -> underscore.string -> sprintf-js)",
+      "reason": "Reached through underscore.string inside apostrophe core; format strings come from code, not from visitors. No compatible fixed release in this tree.",
+      "owner": "Architect / security (D-M0-5)",
+      "remediation": "m1-011: re-check with the next apostrophe release",
+      "decision": "D-M0-5 (S5/S6)",
+      "accepted": "2026-10-20",
+      "reviewBy": "2027-01-18"
+    }
+  ]
+}

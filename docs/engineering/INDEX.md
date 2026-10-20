@@ -16,6 +16,7 @@ Git policy: [git-and-ci.md](./git-and-ci.md).
 | m0-006 | 2026-10-19 | Final Milestone 0 closure verification; M1 readiness | [prompt](./prompts/2026/10/2026-10-19-m0-006-final-m0-closure.prompt.md) | [report](./reports/2026/10/2026-10-19-m0-006-final-m0-closure.report.md) · [M1 execution plan](../milestones/m1-execution-plan.md) · [M1 handoff](../milestones/m1-handoff.md) · [M0 closure report](../milestones/m0-closure-report.md) (**pending**) | — | [PR #3](https://github.com/mimnets/vcl-assurer-group/pull/3) → `ef7bbc8` | Done; merged (verified in m0-007) |
 | m0-007 | 2026-10-19 | Browser-based editor acceptance (agent-executed) | [prompt](./prompts/2026/10/2026-10-19-m0-007-browser-editor-acceptance.prompt.md) · [finalization prompt](./prompts/2026/10/2026-10-19-m0-007-finalization-authorization.prompt.md) | [report](./reports/2026/10/2026-10-19-m0-007-browser-editor-acceptance.report.md) · [human usability checklist](../milestones/m0-human-usability-checklist.md) · [editor checklist](../milestones/m0-editor-acceptance-checklist.md) (agent results) | — | [PR #9](https://github.com/mimnets/vcl-assurer-group/pull/9) → `80bc50c` | Done; merged (verified in m0-008). 23/23 PASS (agent); D-GIT-3 risk accepted |
 | m0-008 | 2026-10-20 | Milestone 0 reconciliation; permanent browser-testing policy; m1-009 CI spec | [prompt](./prompts/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.prompt.md) | [report](./reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [m1-009 CI spec](../milestones/m1-009-ci-and-security-scanning-spec.md) · [M0 closure report](../milestones/m0-closure-report.md) (**CLOSED** 2026-10-20) | — | [PR #10](https://github.com/mimnets/vcl-assurer-group/pull/10) → `1ed5f54` | Done; merged (verified in m1-009). Regression and browser smoke PASS; editor account archived. M0 closed after owner acceptance (D-M0-1) |
+| m1-009 | 2026-10-20 | Milestone 0 closure (owner acceptance); GitHub Actions CI, isolated tests, gitleaks, audit baseline | [prompt](./prompts/2026/10/2026-10-20-m1-009-ci-and-security-scanning.prompt.md) | [report](./reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [M0 closure report](../milestones/m0-closure-report.md) (**CLOSED**) · [m1-009 spec](../milestones/m1-009-ci-and-security-scanning-spec.md) | — | Branch `ci/m1-009-github-actions`; PR to be opened by the owner (D-GIT-9) | M0 CLOSED. CI implemented; local checks and negative tests PASS; **GitHub-hosted CI PENDING** |
 
 m0-005 has two prompt/report pairs: the owner issued the reconciliation prompt under the same task ID, to finish the same task once PR #1 was merged. Both pairs share the ID by design.
 
@@ -39,7 +40,6 @@ this convention and are preserved unchanged.
 
 ## Next free task ID
 
-`m1-009`, the first Milestone 1 task (CI, [specification](../milestones/m1-009-ci-and-security-scanning-spec.md)).
-It assumes M0 closes through the owner sign-off in the closure report (§7), which needs no
-task ID. The sequence runs across milestones (`m0-008` took 008). If any other task starts
-first, it takes 009 and the planned M1 IDs (`m1-009`…`m1-013`) shift.
+`m1-010`, planned for WS-1 (PostgreSQL acceptance test, [M1 plan](../milestones/m1-execution-plan.md)).
+Recording the GitHub-hosted CI results for m1-009 in the same PR needs no new ID. As a separate
+task it takes the next free ID, and the planned M1 IDs shift.

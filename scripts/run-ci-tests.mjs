@@ -1,0 +1,198 @@
+// Isolated end-to-end test run, used by CI and reproducible locally (m1-009).
+//
+//   npm run test:ci             (port 3100 by default; CI_TEST_PORT overrides)
+//   npm run test:ci -- --keep   (keep the temporary directory for debugging)
+//
+// Each run gets a fresh temporary directory (under RUNNER_TEMP in GitHub
+// Actions, otherwise the OS temp directory) holding a new SQLite database and
+// uploads folder. The session secret and test-admin password are generated
+// per run, masked in GitHub Actions logs and never printed. `.env` is not
+// read, so the developer database, media folder and credentials are never
+// used. Steps: create the test admin (assurer-test:ensure-admin), seed demo
+// content, start the server, run the smoke and editor-workflow suites, restart
+// the server, run the persistence check, then stop and delete everything.
+// Uses Node built-ins only.
+
+import { spawn } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
+import { createWriteStream } from 'node:fs';
+import {
+  mkdtemp, readFile, rm, writeFile
+} from 'node:fs/promises';
+import net from 'node:net';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const KEEP = process.argv.includes('--keep');
+const PORT = process.env.CI_TEST_PORT || '3100';
+const BASE_URL = `http://127.0.0.1:${PORT}`;
+const START_TIMEOUT_MS = 180 * 1000;
+
+const work = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'vcl-ci-'));
+const secret = randomBytes(32).toString('hex');
+const password = randomBytes(24).toString('hex');
+if (process.env.GITHUB_ACTIONS === 'true') {
+  // Workflow commands: these lines are consumed by the runner, not logged.
+  console.log(`::add-mask::${secret}`);
+  console.log(`::add-mask::${password}`);
+}
+const emptyEnvFile = path.join(work, 'empty.env');
+await writeFile(emptyEnvFile, '');
+
+// Start from the caller's environment minus anything that could point the
+// app at other data or credentials.
+const inherited = Object.fromEntries(Object.entries(process.env).filter(([ key ]) =>
+  !/^(APOS_|DOTENV_|NODE_ENV$|PORT$|ADDRESS$|BASE_URL$)/.test(key)));
+const env = {
+  ...inherited,
+  // app.js loads `.env` through dotenv/config; point it at an empty file.
+  DOTENV_CONFIG_PATH: emptyEnvFile,
+  DOTENV_CONFIG_QUIET: 'true',
+  APOS_DB_URI: `sqlite://${path.join(work, 'ci.sqlite')}`,
+  APOS_TEST_UPLOADS_PATH: path.join(work, 'media'),
+  APOS_SESSION_SECRET: secret,
+  APOS_TEST_USER: 'ci-admin',
+  APOS_TEST_PASSWORD: password,
+  PORT,
+  ADDRESS: '127.0.0.1',
+  BASE_URL
+};
+
+const summary = [];
+let server = null;
+let serverLog = null;
+let failed = false;
+
+function header(title) {
+  console.log(`\n== ${title}`);
+}
+
+function run(title, args) {
+  header(title);
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, args, {
+      cwd: root,
+      env,
+      stdio: 'inherit'
+    });
+    child.on('exit', (code) => {
+      summary.push(`${code === 0 ? 'PASS' : 'FAIL'}  ${title}`);
+      resolve(code === 0);
+    });
+  });
+}
+
+async function portInUse() {
+  return new Promise((resolve) => {
+    const socket = net.connect(Number(PORT), '127.0.0.1');
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once('error', () => resolve(false));
+  });
+}
+
+async function startServer(label) {
+  header(`start server (${label})`);
+  serverLog = path.join(work, `server-${label}.log`);
+  const log = createWriteStream(serverLog);
+  server = spawn(process.execPath, [ 'app' ], {
+    cwd: root,
+    env,
+    stdio: [ 'ignore', 'pipe', 'pipe' ]
+  });
+  server.stdout.pipe(log);
+  server.stderr.pipe(log);
+  const exited = new Promise(resolve => server.once('exit', code => resolve(code)));
+  const deadline = Date.now() + START_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    const code = await Promise.race([ exited, new Promise(resolve => setTimeout(() => resolve('wait'), 1000)) ]);
+    if (code !== 'wait') {
+      console.log(`server exited early (code ${code})`);
+      summary.push(`FAIL  server start (${label})`);
+      return false;
+    }
+    try {
+      const res = await fetch(`${BASE_URL}/`);
+      if (res.status === 200) {
+        console.log(`server ready at ${BASE_URL}`);
+        summary.push(`PASS  server start (${label})`);
+        return true;
+      }
+    } catch (e) {
+      // Not listening yet.
+    }
+  }
+  console.log(`server did not return 200 within ${START_TIMEOUT_MS / 1000} s`);
+  summary.push(`FAIL  server start (${label})`);
+  return false;
+}
+
+async function stopServer() {
+  if (!server || server.exitCode !== null) {
+    server = null;
+    return;
+  }
+  const exited = new Promise(resolve => server.once('exit', resolve));
+  server.kill('SIGTERM');
+  const timer = setTimeout(() => server?.kill('SIGKILL'), 15000);
+  await exited;
+  clearTimeout(timer);
+  server = null;
+}
+
+async function printServerLogTail() {
+  if (!serverLog) {
+    return;
+  }
+  const lines = (await readFile(serverLog, 'utf8').catch(() => '')).split('\n');
+  console.log(`\n-- last 60 lines of ${path.basename(serverLog)} --`);
+  console.log(lines.slice(-60).join('\n'));
+}
+
+async function steps() {
+  console.log(`Temporary directory: ${work}`);
+  console.log(`Database: ${env.APOS_DB_URI}`);
+  if (await portInUse()) {
+    console.log(`Port ${PORT} is already in use; set CI_TEST_PORT to a free port.`);
+    summary.push('FAIL  port check');
+    return false;
+  }
+  return await run('create test admin (assurer-test:ensure-admin)', [ 'app', 'assurer-test:ensure-admin' ]) &&
+    await run('seed demo content (assurer-demo:seed)', [ 'app', 'assurer-demo:seed' ]) &&
+    await startServer('first') &&
+    await run('smoke test', [ 'scripts/smoke-test.mjs' ]) &&
+    await run('editor workflow test', [ 'scripts/editor-workflow-test.mjs' ]) &&
+    await stopServer().then(() => startServer('restart')) &&
+    await run('persistence test after restart', [ 'scripts/editor-workflow-test.mjs', '--verify-only' ]);
+}
+
+try {
+  failed = !(await steps());
+} catch (e) {
+  console.log(`Runner error: ${e.message}`);
+  failed = true;
+} finally {
+  if (failed) {
+    await printServerLogTail();
+  }
+  await stopServer();
+  if (KEEP) {
+    console.log(`\nKept ${work} (contains the test database; delete it when done)`);
+  } else {
+    await rm(work, {
+      recursive: true,
+      force: true,
+      maxRetries: 10,
+      retryDelay: 500
+    });
+  }
+}
+
+header('summary');
+summary.forEach(line => console.log(line));
+console.log(failed ? '\nCI test run FAILED' : '\nCI test run passed');
+process.exit(failed ? 1 : 0);
