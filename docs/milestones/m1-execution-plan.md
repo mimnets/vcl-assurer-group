@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; its outcome awaits the owner (D-DB-6). WS-3 to WS-5 are not started. |
-| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`) |
+| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; the owner decided D-DB-6 = Option B (development and testing only). WS-3 (`m1-011`) is done by the agent and awaits review. WS-4 and WS-5 are not started. |
+| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`, `m1-011`) |
 | **Precondition** | Milestone 0 closed: met 2026-10-20 ([closure report](./m0-closure-report.md)). |
 | **Handoff** | [m1-handoff.md](./m1-handoff.md) |
 
@@ -55,6 +55,10 @@ allocation if the tasks start in this order.
 - **Exit:** a dated report with a pass or fail per item, and a recommendation on D-M0-2.
 
 ### WS-3 — Security hardening (`m1-011`)
+- **Status (2026-10-20): done by the agent; awaiting architectural review** ([m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md)).
+  - Implemented: security headers via the official module, with a baseline CSP and HSTS only behind HTTPS; X-Powered-By removed; Secure cookies and a restricted `trust proxy` (env-driven); per-IP contact-form rate limit.
+  - Re-decided: the audit baseline. Proposed: a backup protection plan and D-DB-5 follow-up.
+  - Open: a resource CSP (D-SEC-2), a per-IP login limit and CAPTCHA (D-M0-5, S3), and S9 (password policy, 2FA, lockout).
 - HTTPS and `Secure` session cookies behind a proxy (`trust proxy`) (S2).
 - Security headers: CSP tuned for the admin UI, HSTS, `frame-ancestors`, `Referrer-Policy`,
   remove `X-Powered-By` (S1).

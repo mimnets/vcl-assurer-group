@@ -57,7 +57,7 @@ lockfile, `permissions: contents: read`, no repository secrets, and one run per 
 |---|---|---|
 | `lint` | `npm run lint` | any ESLint error |
 | `build` | `npm run build` with `APOS_RELEASE_ID=$GITHUB_SHA`, a generated, masked session secret and a throwaway SQLite path | the build exits non-zero |
-| `test` | `npm run test:unit`, then `npm run test:ci` | a unit test, the smoke (14), workflow (15) or persistence (7) suite fails, or the server does not start |
+| `test` | `npm run test:unit`, then `npm run test:ci` | a unit test, the smoke (14), workflow (15), persistence (7), security (65) or HTTPS-proxy security (15) suite fails, or the server does not start (security suites added in m1-011) |
 | `secrets` | gitleaks 8.30.1 (pinned, SHA-256 verified) over the full git history, `--redact` | any finding not allowed by `.gitleaks.toml` (no allowlist entries today) |
 | `audit` | `npm run audit:check` against `security/audit-baseline.json` | a high or critical advisory not in the baseline, a baselined advisory that got worse or reaches a new package, or an expired or invalid baseline entry |
 

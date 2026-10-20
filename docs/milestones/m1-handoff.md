@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`); **updated 2026-10-20 (`m1-010`)** |
+| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); **updated 2026-10-20 (`m1-011`)** |
 | **Milestone 0** | **CLOSED 2026-10-20.** The owner accepted human usability (D-M0-1), and Milestone 1 is approved (D-M1-0). See [closure report §7](./m0-closure-report.md#7-owner-sign-off-human-usability-acceptance-d-m0-1). |
-| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation **B, provisionally accepted with blockers**, awaiting the owner (D-DB-6). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
-| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
+| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is done by the agent and awaits review (D-GIT-10). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
+| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md) · [security configuration](../runbooks/security-configuration.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
 
 ## Start-of-session checklist (new Claude Code session)
 
@@ -61,12 +61,24 @@ addition (including GitHub Actions and gitleaks) needs approval.
 | No CI; checks are run by hand | D-CI-1 | `m1-009` ([spec](./m1-009-ci-and-security-scanning-spec.md)) |
 | PostgreSQL: the app process exits when the database drops an idle connection (db-connect 1.1.0 has no pool `error` listener) | D-DB-5 | Upstream report; restart supervisor in any shared environment; re-test on each db-connect release |
 | PostgreSQL provisional only: untested on Linux and managed versions; dumps carry sessions (no sanitize task yet) | D-DB-6 | Owner decision; before staging |
-| No security headers, `Secure` cookies or rate limiting | S1–S3, D-M0-5 | `m1-011` |
+| ~~No security headers, `Secure` cookies or rate limiting~~ Mitigated in m1-011: headers with a baseline CSP, env-driven Secure cookies and trusted proxies, per-IP form limit. Open: resource CSP, per-IP login limit, CAPTCHA, real-TLS verification | S1–S3, D-M0-5, D-SEC-2 | `m1-011` done; rest before internet-facing launch |
 | `npm audit`: **43** findings (38 moderate, **5 high**, 0 critical) on 2026-10-20, all upstream (`apostrophe` transitive dependencies; dev-only `nodemon` via `braces`) | S5, D-M0-5 | Baseline in `m1-009`; re-decided in `m1-011`. `audit fix --force` would downgrade core, so it is not used |
 | Form submissions kept indefinitely; no email or export | S4, D-M0-3/4 | `m1-012` |
 | Editors can change site-wide Global Styles, and can publish and archive | D-M0-11 | Review before staff rollout (M1 role design) |
 | The local backup archives hold secrets and are not encrypted | D-M0-9 | Owner |
 | SQLite: single writer, no replication | S7 | Local only, by design |
+
+## m1-011 status (2026-10-20)
+
+- **New dependency (approved, D-SEC-1):** `@apostrophecms/security-headers` 1.0.2. **New module:**
+  `modules/assurer-security/` (env-driven settings, form rate limit, `assurer-security:clear-form-rate-limit`).
+  **New tests:** `npm run test:security` and `scripts/security-config.test.mjs`. `npm run test:ci` now also runs
+  the security suite and an HTTPS-proxy mode.
+- **Note for local testing:** `npm run test:security` uses up this machine's form quota for 15 minutes.
+  Run it after `test:smoke`, or clear the counters with the task.
+- Upstream reports are ready but not filed: D-DB-5, and the form widget showing "Thank you" on errors (D-SEC-3).
+- The disposable editor `m1-011-browser-editor` and its test page and image are archived. One demo form
+  submission from the browser test remains in the local database.
 
 ## m1-010 status (2026-10-20)
 
@@ -106,7 +118,14 @@ addition (including GitHub Actions and gitleaks) needs approval.
 - Stale remote branches from M0 (`docs/m0-004…`, `docs/m0-005…`, `docs/m0-006…`,
   `test/m0-007…`) are merged. The owner may delete them; the agent does not.
 
-## Required next action (owner), updated in m1-010
+## Required next action (owner), updated in m1-011
+
+1. Review the m1-011 report (architectural review). Open the PR from `feat/m1-011-security-hardening`, check the five CI checks, and merge (D-GIT-10).
+2. Approve and file the upstream issues (D-DB-5, D-SEC-3), or ask the agent to file them through an approved integration.
+3. Decide the backup plan steps (D-M0-9) and the CSP rollout (D-SEC-2).
+4. Start the next task (`m1-012`: WS-4 form operations, or the D-DB-5 validation) in a **new Claude Code session**.
+
+### Earlier list (m1-010; items 1 and 3 done, item 2 prepared but not filed, item 4 is m1-011)
 
 1. Review the m1-010 report and decide **D-DB-6** (A, B or C; the agent recommends B).
 2. Approve or file the upstream report for **D-DB-5**.

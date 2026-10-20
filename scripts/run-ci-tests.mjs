@@ -10,7 +10,9 @@
 // read, so the developer database, media folder and credentials are never
 // used. Steps: create the test admin (assurer-test:ensure-admin), seed demo
 // content, start the server, run the smoke and editor-workflow suites, restart
-// the server, run the persistence check, then stop and delete everything.
+// the server, run the persistence check and the security suite, restart once
+// more as if behind an HTTPS proxy (APOS_HTTPS, APOS_TRUST_PROXY, HSTS; m1-011)
+// and run the security suite in proxy mode, then stop and delete everything.
 // Uses Node built-ins only.
 
 import { spawn } from 'node:child_process';
@@ -95,13 +97,16 @@ async function portInUse() {
   });
 }
 
-async function startServer(label) {
+async function startServer(label, extraEnv = {}) {
   header(`start server (${label})`);
   serverLog = path.join(work, `server-${label}.log`);
   const log = createWriteStream(serverLog);
   server = spawn(process.execPath, [ 'app' ], {
     cwd: root,
-    env,
+    env: {
+      ...env,
+      ...extraEnv
+    },
     stdio: [ 'ignore', 'pipe', 'pipe' ]
   });
   server.stdout.pipe(log);
@@ -167,7 +172,14 @@ async function steps() {
     await run('smoke test', [ 'scripts/smoke-test.mjs' ]) &&
     await run('editor workflow test', [ 'scripts/editor-workflow-test.mjs' ]) &&
     await stopServer().then(() => startServer('restart')) &&
-    await run('persistence test after restart', [ 'scripts/editor-workflow-test.mjs', '--verify-only' ]);
+    await run('persistence test after restart', [ 'scripts/editor-workflow-test.mjs', '--verify-only' ]) &&
+    await run('security test', [ 'scripts/security-test.mjs' ]) &&
+    await stopServer().then(() => startServer('https-proxy', {
+      APOS_HTTPS: '1',
+      APOS_TRUST_PROXY: 'loopback',
+      APOS_HSTS_MAX_AGE: '600'
+    })) &&
+    await run('security test, HTTPS proxy mode', [ 'scripts/security-test.mjs', '--proxy' ]);
 }
 
 try {

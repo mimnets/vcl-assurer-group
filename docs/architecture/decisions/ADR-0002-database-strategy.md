@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | **Accepted.** PostgreSQL for staging and production remains conditional on the acceptance test (§6). **2026-10-20 (`m1-010`):** acceptance test run; agent recommendation **B, provisionally accepted with defined blockers** (§9), awaiting the owner (D-DB-6). Not a production commitment. |
+| **Status** | **Accepted.** PostgreSQL for staging and production remains conditional on the acceptance test (§6). **2026-10-20 (`m1-010`):** acceptance test run; agent recommendation **B, provisionally accepted with defined blockers** (§9), awaiting the owner (D-DB-6). Not a production commitment. **2026-10-20 (`m1-011`): the owner decided D-DB-6 = Option B.** PostgreSQL is provisionally accepted for development and further testing only, and is **not approved for staging or production**. SQLite stays the local default and MongoDB the fallback. No production database is selected. D-DB-5 is still open. |
 | **Approved by** | Project owner, 2026-10-19 (recorded in the [m0-004 prompt](../../engineering/prompts/2026/10/2026-10-19-m0-004-safe-git-initialization.prompt.md)) |
 | **Date** | 2026-10-19 |
 | **Task** | `m0-003` · report: [`2026-10-19-m0-003-database-strategy.report.md`](../../engineering/reports/2026/10/2026-10-19-m0-003-database-strategy.report.md) |

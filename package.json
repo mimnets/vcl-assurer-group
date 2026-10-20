@@ -16,6 +16,7 @@
     "lint": "eslint .",
     "test:workflow": "node --env-file=.env scripts/editor-workflow-test.mjs",
     "test:persistence": "node --env-file=.env scripts/editor-workflow-test.mjs --verify-only",
+    "test:security": "node scripts/security-test.mjs",
     "test:unit": "node --test scripts/*.test.mjs",
     "test:ci": "node scripts/run-ci-tests.mjs",
     "audit:check": "node scripts/audit-check.mjs"
@@ -49,6 +50,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@apostrophecms/form": "^1.5.6",
+    "@apostrophecms/security-headers": "^1.0.2",
     "@apostrophecms/vite": "^1.2.0",
     "apostrophe": "^4.34.0",
     "cross-env": "^10.1.0",
