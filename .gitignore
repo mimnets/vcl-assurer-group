@@ -32,3 +32,6 @@ node_modules
 release-id
 # Per-user Claude Code settings
 .claude/settings.local.json
+
+# Local test evidence (screenshots may show test data). Never commit.
+/evidence
