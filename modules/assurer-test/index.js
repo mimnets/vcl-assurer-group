@@ -17,9 +17,15 @@
 // (m1-012) Moves the creation date of the <count> oldest form submissions
 // <days> days into the past, so the retention task's deletion can be tested
 // on disposable data. Same safety checks as ensure-admin.
-import { refuseReason } from './lib/guard.js';
+//
+//   node app assurer-test:ensure-editor
+//
+// (m1-014) Creates a non-admin account with the core `editor` role from
+// APOS_TEST_EDITOR_USER and APOS_TEST_EDITOR_PASSWORD, for the content-model
+// suite's permission checks. Same safety checks; idempotent.
+import { editorRefuseReason, refuseReason } from './lib/guard.js';
 
-const TASKS = [ 'assurer-test:ensure-admin', 'assurer-test:backdate-submissions' ];
+const TASKS = [ 'assurer-test:ensure-admin', 'assurer-test:backdate-submissions', 'assurer-test:ensure-editor' ];
 
 // Refuse before Apostrophe connects to the database or runs migrations.
 // `.env` has already been loaded by app.js at this point.
@@ -30,7 +36,8 @@ for (const task of TASKS) {
 }
 
 function assertSafe(task) {
-  const reason = refuseReason(process.env);
+  const check = task === 'assurer-test:ensure-editor' ? editorRefuseReason : refuseReason;
+  const reason = check(process.env);
   if (reason) {
     throw new Error(`Refusing to run ${task}: ${reason}.`);
   }
@@ -49,6 +56,11 @@ export default {
           'on a temporary SQLite database.\n' +
           'Usage: node app assurer-test:backdate-submissions --days=400 --count=3',
         task: (argv) => self.backdateSubmissions(argv)
+      },
+      'ensure-editor': {
+        usage: 'Create the test editor from APOS_TEST_EDITOR_USER / APOS_TEST_EDITOR_PASSWORD ' +
+          'on a temporary SQLite database.\nUsage: node app assurer-test:ensure-editor',
+        task: () => self.ensureEditor()
       }
     };
   },
@@ -72,6 +84,26 @@ export default {
           password: process.env.APOS_TEST_PASSWORD
         });
         self.apos.util.log('Test admin created.');
+      },
+
+      async ensureEditor() {
+        assertSafe(TASKS[2]);
+        const req = self.apos.task.getReq();
+        const username = process.env.APOS_TEST_EDITOR_USER;
+        const existing = await self.apos.user.find(req, { username })
+          .archived(null)
+          .toObject();
+        if (existing) {
+          self.apos.util.log('Test editor already exists; nothing changed.');
+          return;
+        }
+        await self.apos.user.insert(req, {
+          username,
+          title: username,
+          role: 'editor',
+          password: process.env.APOS_TEST_EDITOR_PASSWORD
+        });
+        self.apos.util.log('Test editor created.');
       },
 
       async backdateSubmissions(argv) {

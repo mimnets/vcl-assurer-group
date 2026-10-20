@@ -9,9 +9,25 @@ export default {
         label: 'Default'
       },
       {
+        name: 'assurer-division-page',
+        label: 'Division / overview'
+      },
+      {
+        name: 'assurer-product-category-page',
+        label: 'Product category'
+      },
+      {
         name: '@apostrophecms/home-page',
         label: 'Home'
       }
-    ]
+    ],
+    // Core's defaults, except that the home page's children are loaded two
+    // levels deep, for the two-level main menu in views/layout.jsx (m1-014).
+    // Core's `children` query skips pages marked "Hide in Navigation" and,
+    // for visitors, anything unpublished.
+    builders: {
+      ancestors: { children: { depth: 2 } },
+      children: true
+    }
   }
 };

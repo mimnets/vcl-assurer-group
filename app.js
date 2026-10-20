@@ -68,6 +68,14 @@ apostrophe({
     'assurer-slideshow-widget': {},
     'assurer-product-grid-widget': {},
     'assurer-product-card-widget': {},
+    // Corporate content model (ADR-0003, m1-014): reusable records and the
+    // division and product category page types.
+    'assurer-product': {},
+    'assurer-organization': {},
+    'assurer-person': {},
+    'assurer-location': {},
+    'assurer-division-page': {},
+    'assurer-product-category-page': {},
     'assurer-demo': {},
     // Test-only tasks (CI admin bootstrap); refuse to run outside a
     // temporary SQLite database.
