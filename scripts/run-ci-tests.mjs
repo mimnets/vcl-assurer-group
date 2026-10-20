@@ -16,7 +16,9 @@
 // (APOS_HTTPS, APOS_TRUST_PROXY, HSTS; m1-011) and run the security suite in
 // proxy mode, then stop and delete everything. The sink never relays mail,
 // and the SMTP password is a random per-run value the form suite checks for
-// leaks.
+// leaks. m1-014 adds a test editor (assurer-test:ensure-editor), runs the
+// corporate demo seed twice (it must add nothing the second time) and runs
+// the content-model suite before and after a restart.
 // Uses Node built-ins only.
 
 import { spawn } from 'node:child_process';
@@ -40,10 +42,12 @@ const work = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'vc
 const secret = randomBytes(32).toString('hex');
 const password = randomBytes(24).toString('hex');
 const smtpPassword = randomBytes(24).toString('hex');
+const editorPassword = randomBytes(24).toString('hex');
 if (process.env.GITHUB_ACTIONS === 'true') {
   // Workflow commands: these lines are consumed by the runner, not logged.
   console.log(`::add-mask::${secret}`);
   console.log(`::add-mask::${password}`);
+  console.log(`::add-mask::${editorPassword}`);
   console.log(`::add-mask::${smtpPassword}`);
 }
 const emptyEnvFile = path.join(work, 'empty.env');
@@ -63,6 +67,8 @@ const env = {
   APOS_SESSION_SECRET: secret,
   APOS_TEST_USER: 'ci-admin',
   APOS_TEST_PASSWORD: password,
+  APOS_TEST_EDITOR_USER: 'ci-editor',
+  APOS_TEST_EDITOR_PASSWORD: editorPassword,
   PORT,
   ADDRESS: '127.0.0.1',
   BASE_URL
@@ -195,12 +201,19 @@ async function steps() {
     return false;
   }
   return await run('create test admin (assurer-test:ensure-admin)', [ 'app', 'assurer-test:ensure-admin' ]) &&
+    await run('create test editor (assurer-test:ensure-editor)', [ 'app', 'assurer-test:ensure-editor' ]) &&
     await run('seed demo content (assurer-demo:seed)', [ 'app', 'assurer-demo:seed' ]) &&
+    await run('seed corporate demo records (assurer-demo:seed-corporate)', [ 'app', 'assurer-demo:seed-corporate' ]) &&
+    await run('seed corporate demo records again (must add nothing)', [ 'app', 'assurer-demo:seed-corporate' ]) &&
     await startServer('first') &&
     await run('smoke test', [ 'scripts/smoke-test.mjs' ]) &&
     await run('editor workflow test', [ 'scripts/editor-workflow-test.mjs' ]) &&
+    await run('content model test', [ 'scripts/content-model-test.mjs' ], { CONTENT_TEST_DISPOSABLE: '1' }) &&
     await stopServer().then(() => startServer('restart')) &&
     await run('persistence test after restart', [ 'scripts/editor-workflow-test.mjs', '--verify-only' ]) &&
+    await run('content model persistence after restart', [ 'scripts/content-model-test.mjs', '--verify-only' ], {
+      CONTENT_TEST_DISPOSABLE: '1'
+    }) &&
     await stopServer().then(() => startServer('forms', formsEnv)) &&
     await run('form operations test', [ 'scripts/form-ops-test.mjs' ], {
       ...formsEnv,

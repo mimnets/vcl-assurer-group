@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; the owner decided D-DB-6 = Option B (development and testing only). WS-3 (`m1-011`) is merged (PR #13, `1978449`). WS-4 (`m1-012`) is merged (PR #14, `ad5253b`; hosted CI green). WS-5 planning (`m1-013`) is done by the agent and awaits architectural review; WS-5 implementation is not started. |
-| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`, `m1-011`, `m1-012`, `m1-013`) |
+| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; the owner decided D-DB-6 = Option B (development and testing only). WS-3 (`m1-011`) is merged (PR #13, `1978449`). WS-4 (`m1-012`) is merged (PR #14, `ad5253b`; hosted CI green). WS-5 planning (`m1-013`) is merged (PR #15, `15ef1a3`; hosted CI green). WS-5 implementation started: CA-1 (`m1-014`, content model foundation, ADR-0003) is done by the agent and awaits architectural review. |
+| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`, `m1-011`, `m1-012`, `m1-013`, `m1-014`) |
 | **Precondition** | Milestone 0 closed: met 2026-10-20 ([closure report](./m0-closure-report.md)). |
 | **Handoff** | [m1-handoff.md](./m1-handoff.md) |
 
@@ -81,6 +81,7 @@ allocation if the tasks start in this order.
 - **Exit:** the business owner and DPO sign off; tests cover export and deletion.
 
 ### WS-5 — Assurer content architecture (`m1-013`)
+- **Status (2026-10-20, m1-014):** m1-013 merged (PR #15). The owner approved D-CONTENT-1 and D-CONTENT-8, and D-CONTENT-2 in part. [ADR-0003](../architecture/decisions/ADR-0003-corporate-content-model.md) is accepted, so the WS-5 exit criterion "an approved content model" is met. CA-1 is built in `m1-014` ([report](../engineering/reports/2026/10/2026-10-20-m1-014-content-model-foundation.report.md)): four piece types, two page types, Global Content, a two-level menu and a guarded demo seed. It awaits review (D-GIT-13). Next: CA-2 (widgets); CA-3 waits for D-CONTENT-10.
 - **Status (2026-10-20): planning done by the agent; awaiting architectural review** ([m1-013 report](../engineering/reports/2026/10/2026-10-20-m1-013-corporate-content-architecture.report.md)).
   - Done: read-only inventory of all 29 WordPress sitemap URLs ([inventory](../content/wordpress-site-inventory.md)); proposed [information architecture](../content/corporate-information-architecture.md), [content model](../content/apostrophe-content-model.md) (ADR-0003 candidate), [SEO and migration plan](../content/seo-and-migration-plan.md), [editorial and design requirements](../content/editorial-and-design-requirements.md), [implementation plan and risks](../content/implementation-plan-and-risks.md).
   - No code changed. Exit criterion not met: the content model is not yet approved (D-CONTENT-8), and the owner decisions D-CONTENT-1…12 are open.

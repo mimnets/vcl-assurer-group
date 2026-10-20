@@ -11,6 +11,33 @@ import path from 'node:path';
 export const MIN_PASSWORD_LENGTH = 16;
 
 export function refuseReason(env, { tmpDirs = [ os.tmpdir() ] } = {}) {
+  const dbReason = temporarySqliteReason(env, { tmpDirs });
+  if (dbReason) {
+    return dbReason;
+  }
+  if (!env.APOS_TEST_USER) {
+    return 'APOS_TEST_USER is not set';
+  }
+  if (!env.APOS_TEST_PASSWORD || env.APOS_TEST_PASSWORD.length < MIN_PASSWORD_LENGTH) {
+    return `APOS_TEST_PASSWORD is missing or shorter than ${MIN_PASSWORD_LENGTH} characters`;
+  }
+  return null;
+}
+
+// The same checks for `assurer-test:ensure-editor` (m1-014), which reads
+// APOS_TEST_EDITOR_USER and APOS_TEST_EDITOR_PASSWORD instead.
+export function editorRefuseReason(env, options) {
+  return refuseReason({
+    ...env,
+    APOS_TEST_USER: env.APOS_TEST_EDITOR_USER,
+    APOS_TEST_PASSWORD: env.APOS_TEST_EDITOR_PASSWORD
+  }, options)?.replace(/APOS_TEST_(USER|PASSWORD)/, 'APOS_TEST_EDITOR_$1') || null;
+}
+
+// Returns a reason to refuse unless NODE_ENV is not production and
+// APOS_DB_URI is a sqlite:// file under the OS temp directory or RUNNER_TEMP.
+// Also used by `assurer-demo:seed-corporate` (m1-014).
+export function temporarySqliteReason(env, { tmpDirs = [ os.tmpdir() ] } = {}) {
   if (env.NODE_ENV === 'production') {
     return 'NODE_ENV is production';
   }
@@ -32,12 +59,6 @@ export function refuseReason(env, { tmpDirs = [ os.tmpdir() ] } = {}) {
     .map(dir => realpath(path.resolve(dir)));
   if (!roots.some(root => isInside(root, dbPath))) {
     return 'the database is not under the OS temp directory or RUNNER_TEMP';
-  }
-  if (!env.APOS_TEST_USER) {
-    return 'APOS_TEST_USER is not set';
-  }
-  if (!env.APOS_TEST_PASSWORD || env.APOS_TEST_PASSWORD.length < MIN_PASSWORD_LENGTH) {
-    return `APOS_TEST_PASSWORD is missing or shorter than ${MIN_PASSWORD_LENGTH} characters`;
   }
   return null;
 }
