@@ -42,6 +42,11 @@ apostrophe({
     'nested-layout-widget': {},
     'nested-column-widget': {},
 
+    // HTTP security headers (official module, MIT) and project security
+    // controls: X-Powered-By removal and contact-form rate limiting (m1-011).
+    '@apostrophecms/security-headers': {},
+    'assurer-security': {},
+
     // Contact forms: @apostrophecms/form (MIT, Community Edition).
     // `@apostrophecms/form` must be registered before its widgets.
     // The file-upload field is deliberately NOT enabled (anonymous uploads).

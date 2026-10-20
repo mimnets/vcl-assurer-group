@@ -11,7 +11,8 @@
 >   database. Restore into a new, empty one, verify it, then switch.
 > - Dumps contain password hashes, session and API tokens, and personal data. Store them
 >   encrypted, in `backups/` locally (git-ignored) or a restricted bucket. Never attach them to
->   tickets or chat.
+>   tickets or chat. Encryption, key custody and restore verification: the
+>   [backup protection plan](./backup-protection-plan.md) (proposal, m1-011).
 > - Database and media are a pair. Back them up from the same quiet point and restore both.
 
 ## A. Local (SQLite) backup
