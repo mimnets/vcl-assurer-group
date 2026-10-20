@@ -63,6 +63,26 @@ docs/
 ## Recommended next step
 ```
 
+## Browser acceptance checklist (every task; added m0-008)
+
+Every report has a **Browser acceptance** subsection under "Tests executed and actual results",
+following the AGENTS.md browser-testing rules. Write the checklist for the task itself, before
+running it, from what the task changed. A generic list doesn't count.
+
+| # | Check (what a user does) | Role / viewport | Steps | Expected | Actual | Status | Evidence |
+|---|---|---|---|---|---|---|---|
+
+- **Status** is exactly one of PASS, FAIL, BLOCKED or NOT TESTED. Give a reason for each BLOCKED
+  or NOT TESTED item.
+- The header states the browser and method (for example "Claude in Chrome, owner's Chrome,
+  dedicated tab group"), the account role used, and that the run is **agent-executed**.
+- For features and content changes, include at least: the main user path as a non-admin editor;
+  draft/published isolation; logged-out access; desktop, tablet and mobile layouts if the
+  rendering changed; and cleanup.
+- For docs-only and governance tasks, a public-site smoke check is enough: home page renders,
+  key interactions work, and logged-out access controls hold.
+- Evidence stays in `evidence/<task-id>/` (git-ignored). Reports cite file names only.
+
 Rules: report actual results only. Say what was not done or not verified. No secrets, tokens,
 passwords or session data, even redacted fragments. Historical reports are never rewritten. A
 correction is a new dated report that links to the old one.
