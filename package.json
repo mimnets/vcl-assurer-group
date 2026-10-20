@@ -15,7 +15,10 @@
     "test:smoke": "node scripts/smoke-test.mjs",
     "lint": "eslint .",
     "test:workflow": "node --env-file=.env scripts/editor-workflow-test.mjs",
-    "test:persistence": "node --env-file=.env scripts/editor-workflow-test.mjs --verify-only"
+    "test:persistence": "node --env-file=.env scripts/editor-workflow-test.mjs --verify-only",
+    "test:unit": "node --test scripts/*.test.mjs",
+    "test:ci": "node scripts/run-ci-tests.mjs",
+    "audit:check": "node scripts/audit-check.mjs"
   },
   "nodemonConfig": {
     "delay": 1000,

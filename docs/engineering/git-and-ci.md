@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Proposed (`m0-002`). Nothing in this file has been applied to GitHub yet. |
+| **Status** | Proposed (`m0-002`). Branch protection is **not** applied (D-GIT-3, accepted risk). The CI section was implemented in `m1-009` (2026-10-20). |
 | **Repository** | `github.com/mimnets/vcl-assurer-group` |
 
 ## Current state (inspected 2026-10-19)
@@ -45,21 +45,49 @@ Then apply branch protection (below) **before** any further work lands.
 `refactor`, `test`, `ci`, `build`, `perf`, `security`. Breaking changes use `!` or a
 `BREAKING CHANGE:` footer. Add a `Refs: mN-NNN` footer for traceability.
 
-## CI (proposed GitHub Actions — not created yet)
+## CI (GitHub Actions)
 
-Run on every PR and on push to `main`. Node 24, `npm ci`.
+Implemented in `m1-009` ([spec](../milestones/m1-009-ci-and-security-scanning-spec.md)) as
+`.github/workflows/ci.yml`. It runs on every pull request, on push to `main`, and on manual
+dispatch (`workflow_dispatch` works once the file is on `main`). Node 24, `npm ci` from the
+lockfile, `permissions: contents: read`, no repository secrets, and one run per PR or ref
+(superseded PR runs are cancelled).
 
-| Job | Command | Blocks merge |
+| Check (job) | What it runs | Fails when |
 |---|---|---|
-| Lint | `npm run lint` | yes |
-| Build | `APOS_RELEASE_ID=$GITHUB_SHA npm run build` | yes |
-| Smoke + editor workflow | start the app on a throwaway SQLite database with a generated session secret; create a test admin with a generated password through a non-interactive script; run `npm run test:smoke` and `scripts/editor-workflow-test.mjs` | yes |
-| Dependency audit | `npm audit --audit-level=high`, with documented exceptions (the M0 security review §3) | yes, for new high/critical |
-| License check | script that fails on licenses outside the approved list (MIT, ISC, BSD, Apache-2.0, BlueOak, 0BSD, CC0, …) plus documented exceptions | yes |
+| `lint` | `npm run lint` | any ESLint error |
+| `build` | `npm run build` with `APOS_RELEASE_ID=$GITHUB_SHA`, a generated, masked session secret and a throwaway SQLite path | the build exits non-zero |
+| `test` | `npm run test:unit`, then `npm run test:ci` | a unit test, the smoke (14), workflow (15) or persistence (7) suite fails, or the server does not start |
+| `secrets` | gitleaks 8.30.1 (pinned, SHA-256 verified) over the full git history, `--redact` | any finding not allowed by `.gitleaks.toml` (no allowlist entries today) |
+| `audit` | `npm run audit:check` against `security/audit-baseline.json` | a high or critical advisory not in the baseline, a baselined advisory that got worse or reaches a new package, or an expired or invalid baseline entry |
 
-Gap: the test admin is currently created interactively (`user:add` prompts for a password). CI
-needs a non-interactive way to do this, without a password in the workflow file. That is an M1
-task.
+**These checks are not enforceable as required checks** on the current plan (D-GIT-3). They
+report on the PR, and the owner merges only green PRs.
+
+### Reproducing CI locally
+
+- `npm run test:ci` runs the `test` job's steps: a new temp directory (`RUNNER_TEMP` in CI,
+  otherwise the OS temp directory) with a fresh SQLite database and uploads folder, a generated
+  session secret and test-admin password (never printed), `.env` ignored. It creates the admin
+  with `node app assurer-test:ensure-admin`, seeds the demo, starts the server on port 3100
+  (`CI_TEST_PORT` overrides), runs smoke and workflow, restarts, runs persistence, then deletes
+  the temp directory (`-- --keep` keeps it). Your dev server can keep running on port 3000. The
+  first run builds the development assets, as `npm start` does.
+- `assurer-test:ensure-admin` refuses to run unless `APOS_DB_URI` is a `sqlite://` file under
+  the temp directory or `RUNNER_TEMP`, `NODE_ENV` is not `production`, and
+  `APOS_TEST_PASSWORD` has at least 16 characters. It refuses before Apostrophe opens the
+  database.
+- Files uploaded during `test:ci` go to the temp directory (`APOS_TEST_UPLOADS_PATH`), not
+  `public/uploads`, and are not served over HTTP during that run.
+
+### Changing the audit baseline
+
+Add or renew an entry in `security/audit-baseline.json` only with an owner decision (D-M0-5):
+GHSA ID, package, severity, scope, reason, owner, `accepted` date and a `reviewBy` date no
+more than 90 days later. For high and critical entries, list the affected packages in
+`affects`. Never run `npm audit fix --force`.
+
+License checking (previously listed here) is not implemented; it is a follow-up.
 
 ## Repository security settings (GitHub, free for private repositories with limits — confirm the plan)
 

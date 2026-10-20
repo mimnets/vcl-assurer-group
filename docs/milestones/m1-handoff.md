@@ -2,9 +2,10 @@
 
 | | |
 |---|---|
-| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; **rewritten 2026-10-20 (`m0-008`)** for a fresh session |
-| **Milestone 0** | **PENDING**: one owner gate remains, human usability acceptance (D-M0-1, [closure report §7](./m0-closure-report.md#7-owner-sign-off-human-usability-acceptance-d-m0-1)). Everything else is met. **Do not start Milestone 1 until M0 is CLOSED and the owner approves D-M1-0.** |
-| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
+| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); **updated 2026-10-20 (`m1-009`)** |
+| **Milestone 0** | **CLOSED 2026-10-20.** The owner accepted human usability (D-M0-1), and Milestone 1 is approved (D-M1-0). See [closure report §7](./m0-closure-report.md#7-owner-sign-off-human-usability-acceptance-d-m0-1). |
+| **Milestone 1** | Started. `m1-009` (CI) is implemented on `ci/m1-009-github-actions`; **GitHub-hosted CI is PENDING** and the PR is not merged (D-GIT-9). [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md). |
+| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
 
 ## Start-of-session checklist (new Claude Code session)
 
@@ -66,14 +67,37 @@ addition (including GitHub Actions and gitleaks) needs approval.
 | The local backup archives hold secrets and are not encrypted | D-M0-9 | Owner |
 | SQLite: single writer, no replication | S7 | Local only, by design |
 
+## m1-009 status (2026-10-20)
+
+- Added: `.github/workflows/ci.yml` (`lint`, `build`, `test`, `secrets`, `audit`),
+  `npm run test:ci` (isolated run on a throwaway database), `npm run test:unit`,
+  `npm run audit:check` with `security/audit-baseline.json`, `.gitleaks.toml`, and the
+  test-only `assurer-test:ensure-admin` task. Details are in [git-and-ci.md](../engineering/git-and-ci.md#ci-github-actions).
+- Local results: lint clean, unit 24/24, `test:ci` 14/14 · 15/15 · 7/7, build passes, audit
+  gate passes, gitleaks history 0 findings. Local negative tests pass.
+- **Pending:** the hosted runs on the PR, inspection of the Checks tab, and optionally the
+  GitHub-side negative tests (owner approval needed).
+
 ## Git state (2026-10-20)
+
+**Updated in m1-009:** `origin/main` = `1ed5f54` (merge of PR #10, m0-008). m1-009 is on
+`ci/m1-009-github-actions`, pushed for the owner to open a PR. The notes below are from m0-008.
+
 
 - `origin/main` = `80bc50c` (merge of PR #9, m0-007).
 - m0-008 is on `docs/m0-008-milestone-closure-and-browser-policy`; the owner opens and merges the PR.
 - Stale remote branches from M0 (`docs/m0-004…`, `docs/m0-005…`, `docs/m0-006…`,
   `test/m0-007…`) are merged. The owner may delete them; the agent does not.
 
-## Required next action (owner)
+## Required next action (owner), updated in m1-009
+
+1. Open the m1-009 PR from `ci/m1-009-github-actions`, check that all five checks pass, and
+   inspect their logs. Then merge (D-GIT-9). This closes D-CI-1.
+2. Optional: approve the GitHub-side negative tests (throwaway PRs, closed unmerged).
+3. Optional and free: turn on Dependency graph and Dependabot alerts (D-GIT-3).
+4. Start the next task (`m1-010`, PostgreSQL acceptance) in a **new Claude Code session**.
+
+### Earlier list (m0-008, done)
 
 1. Review and merge the m0-008 PR.
 2. Complete the [human usability checklist](./m0-human-usability-checklist.md) and sign

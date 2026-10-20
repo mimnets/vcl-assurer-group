@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Status** | **Proposed.** Starting Milestone 1 is an architecture gate and needs explicit approval from the project owner. Nothing here is implemented. |
-| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`) |
-| **Precondition** | Milestone 0 closed (see [closure report](./m0-closure-report.md)). |
+| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is implemented and awaiting GitHub-hosted CI verification and PR review. The other workstreams are not started. |
+| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`) |
+| **Precondition** | Milestone 0 closed: met 2026-10-20 ([closure report](./m0-closure-report.md)). |
 | **Handoff** | [m1-handoff.md](./m1-handoff.md) |
 
 ## Task IDs
@@ -28,6 +28,7 @@ allocation if the tasks start in this order.
 ## Workstream scope and exit criteria
 
 ### WS-2 — GitHub CI and security scanning (`m1-009`)
+- **Status (2026-10-20):** implemented on `ci/m1-009-github-actions` ([report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md)). Local checks and local negative tests pass. **GitHub-hosted runs are PENDING**, so the exit criterion is not yet met.
 - **Detailed specification: [m1-009-ci-and-security-scanning-spec.md](./m1-009-ci-and-security-scanning-spec.md)**
   (prepared in m0-008). Summary: a GitHub Actions workflow with `npm ci`, ESLint, the production
   build, and the smoke, workflow and persistence suites on a fresh per-run SQLite database;

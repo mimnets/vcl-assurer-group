@@ -1,0 +1,15 @@
+# gitleaks configuration (m1-009). Used by the `secrets` CI job:
+#   gitleaks git --config .gitleaks.toml --redact .
+# Extends gitleaks' default rule set.
+#
+# Allowlist: none. The full-history scan on 2026-10-20 (gitleaks 8.30.1,
+# 6 non-merge commits) found nothing, so nothing needs excluding.
+# If a false positive appears, add the narrowest exclusion possible (one path
+# plus one rule ID, or one fingerprint in .gitleaksignore), with a comment
+# giving the reason and the task ID. Never allowlist a real secret: rotate it
+# and tell the owner.
+
+title = "vcl-assurer-group"
+
+[extend]
+useDefault = true

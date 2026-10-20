@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| **Status** | **PENDING** (re-assessed in `m0-008`, 2026-10-20). Every technical and process gate is met: m0-007 is merged (PR #9), the regression suite and production build pass, the agent browser run passed 23/23 (m0-007) and a public-site smoke check passed (m0-008), the branch-protection risk is accepted (D-GIT-3), and the test editor account is archived (D-M0-10). **One gate is still open: human usability acceptance (D-M0-1).** No human acceptance is recorded in the repository. That gate is **not waived**. The owner signs off in §7. |
-| **Prepared** | 2026-10-19 (`m0-005`); updated 2026-10-19 after the PR #1 merge (m0-005 reconciliation) in the final closure check (`m0-006`) and after the browser acceptance run (`m0-007`); reconciled 2026-10-20 (`m0-008`) |
+| **Status** | **CLOSED — 2026-10-20.** The owner accepted human usability (D-M0-1) on 2026-10-20 (§7). Every other gate was re-verified the same day in `m1-009` (§4). *History:* PENDING in `m0-008` (2026-10-20) with D-M0-1 as the only open gate. |
+| **Prepared** | 2026-10-19 (`m0-005`); updated 2026-10-19 after the PR #1 merge (m0-005 reconciliation) in the final closure check (`m0-006`) and after the browser acceptance run (`m0-007`); reconciled 2026-10-20 (`m0-008`); closure recorded 2026-10-20 (`m1-009`, documentation-only commit) |
 | **Milestone tasks** | m0-001 · m0-002 · m0-003 · m0-004 · m0-005 · m0-006 · m0-007 · m0-008 (see [INDEX](../engineering/INDEX.md)) |
-| **Repository** | `github.com/mimnets/vcl-assurer-group` (private). `main` = `80bc50c` (merge of PR #9, m0-007), verified by fetch 2026-10-20 (`m0-008`). Its tree equals the reviewed m0-007 head `a3324ea`. |
-| **Closed by** | *(open: the owner fills in §7)* |
+| **Repository** | `github.com/mimnets/vcl-assurer-group` (private). `main` = `1ed5f54` (merge of PR #10, m0-008), verified by fetch 2026-10-20 (`m1-009`). Its tree equals the reviewed m0-008 head `aa53a17`. (Earlier: `80bc50c`, PR #9, m0-007.) |
+| **Closed by** | Project owner (repository owner), decision **Accept** conveyed through ChatGPT on 2026-10-20 and recorded by the agent in `m1-009`. See §7. Not a handwritten signature. |
 
 ## 1. Objective
 
@@ -46,21 +46,25 @@ persistence **7/7**, both before and after a server restart · production build 
 Public-site browser smoke check (Claude in Chrome, logged out): home page, slideshow navigation,
 form validation, tablet and mobile layouts (0 px overflow) and logged-out access controls all
 PASS ([m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md)).
-The 23/23 editor checklist run is from m0-007. All browser runs are **agent-executed**, and human
-usability acceptance is still required.
+The 23/23 editor checklist run is from m0-007. All browser runs are **agent-executed**. Human
+usability acceptance was given by the owner on 2026-10-20 (§7).
+
+Re-run at closure (2026-10-20, `m1-009`, before any m1-009 change, against the local server):
+lint clean · smoke **14/14** · editor workflow **15/15** · persistence **7/7**.
 
 ## 4. Closure gates
 
 | Gate | Blocking? | Status |
 |---|---|---|
-| Human editor walkthrough passes ([checklist](./m0-editor-acceptance-checklist.md)), recorded in the repository | **Yes** | **OPEN (not waived).** Agent-executed browser run: 23/23 PASS ([m0-007 report](../engineering/reports/2026/10/2026-10-19-m0-007-browser-editor-acceptance.report.md)). No human acceptance was recorded by 2026-10-20 (checked in m0-008). **Owner:** complete the [short checklist](./m0-human-usability-checklist.md) and sign §7 (D-M0-1). |
+| Human editor walkthrough passes ([checklist](./m0-editor-acceptance-checklist.md)), recorded in the repository | **Yes** | ✅ **Accepted by the owner, 2026-10-20** (§7, D-M0-1 closed). Basis: the agent-executed browser run, 23/23 PASS ([m0-007 report](../engineering/reports/2026/10/2026-10-19-m0-007-browser-editor-acceptance.report.md)), plus the owner's own usability decision. The repository does not record which checklist steps the owner personally performed. |
 | M0-004 post-push-results PR merged | **Yes** | ✅ **Done:** PR #1 merged by the owner as `96039f8`; the merged tree equals the reviewed head `9f9fe12` (verified) |
 | M0-005 documentation PR (this closure report, checklist, register, index, m0-005 records) merged | **Yes** | ✅ **Done:** PR #2 merged as `003aac3`; merged tree equals the reviewed head `0ea6333` (verified in m0-006) |
 | M0-007 PR merged | **Yes** | ✅ **Done:** PR #9 merged as `80bc50c`; merged tree equals the reviewed head `a3324ea` (verified in m0-008) |
+| M0-008 PR merged | **Yes** | ✅ **Done:** PR #10 merged as `1ed5f54`; merged tree equals the reviewed head `aa53a17` (verified by fetch in m1-009) |
 | GitHub branch protection checked by the owner and its **actual** status documented | **Yes** | **Checked (m0-007): `main` is NOT protected.** No rulesets; no classic protection; GitHub states rulesets are not enforced on this private repository without GitHub Team; Dependabot off; secret scanning not offered. ✅ **Documented and decided:** risk accepted as a temporary exception; compensating controls and a review trigger are recorded in D-GIT-3. |
-| Required application tests pass | **Yes** | ✅ lint, 14/14, 15/15, 7/7 and build (m0-008, 2026-10-20) |
-| No unresolved critical blocking issue | **Yes** | ✅ none (m0-008). The unprotected `main` is an accepted, documented process risk (D-GIT-3). `npm audit` shows 0 critical findings (43 in total, 5 high, all upstream; carried as D-M0-5). |
-| Disposable test accounts cleaned up | No (hygiene) | ✅ `m0-007-demo-editor` **archived** through the core REST API by the local admin (m0-008, D-M0-10). Not deleted. Its password was already unknown. |
+| Required application tests pass | **Yes** | ✅ lint, 14/14, 15/15, 7/7 and build (m0-008, 2026-10-20); lint, 14/14, 15/15, 7/7 re-run 2026-10-20 (m1-009) |
+| No unresolved critical blocking issue | **Yes** | ✅ none (m0-008; re-checked in m1-009). The unprotected `main` is an accepted, documented process risk (D-GIT-3), **not** a technical protection. `npm audit` shows 0 critical findings (43 in total, 5 high, all upstream; carried as D-M0-5). |
+| Disposable test accounts cleaned up | No (hygiene) | ✅ `m0-007-demo-editor` **archived** through the core REST API by the local admin (m0-008, D-M0-10). Not deleted. Its password was already unknown. Re-checked 2026-10-20 (m1-009, read-only REST query): the only active user is `admin`; the test editor is archived. |
 
 ## 5. Carried into Milestone 1 (not M0 blockers)
 
@@ -73,9 +77,9 @@ D-M0-11 (editor access to Global Styles, review before staff rollout). See the
 
 ## 6. Recommendation
 
-Close Milestone 0 once the owner has signed §7. Nothing else blocks closure. Then, in a
-**new Claude Code session**, approve the start of Milestone 1 (D-M1-0) and begin with `m1-009`
-(CI, [specification](./m1-009-ci-and-security-scanning-spec.md)), on a feature branch through a PR.
+Done. Milestone 0 is **CLOSED** (2026-10-20). The owner also approved the start of Milestone 1
+(D-M1-0), beginning with `m1-009` (CI, [specification](./m1-009-ci-and-security-scanning-spec.md)),
+on a feature branch through a PR.
 
 ## 7. Owner sign-off (human usability acceptance, D-M0-1)
 
@@ -87,13 +91,13 @@ mentions, so the task-ID sequence is unaffected.
 
 | Field | Entry |
 |---|---|
-| Reviewer name and role | |
-| Date | |
-| Checklist questions 1–8 and 10 | Yes / No (notes for any No) |
-| Question 9 (editors and Global Styles) | Keep core default / restrict in M1 (updates D-M0-11) |
-| Evidence reviewed (`evidence/m0-007/`, local) | Yes / No |
-| **Decision** | **Accept** / **Reject** |
-| Notes | |
+| Reviewer name and role | Project owner (repository owner). No name was given with the decision. |
+| Date | 2026-10-20 |
+| Checklist questions 1–8 and 10 | Not recorded individually. The owner gave an overall decision with no per-question answers. |
+| Question 9 (editors and Global Styles) | Not answered. D-M0-11 stays as recorded: core default kept, review before staff rollout. |
+| Evidence reviewed (`evidence/m0-007/`, local) | Not stated |
+| **Decision** | **Accept** |
+| Notes | Owner's words, verbatim: "My VCL-ASSURER-GROUP Milestone 0 usability decision is: ACCEPT — authorize closure. No additional comments." Conveyed to the agent through ChatGPT (the `m1-009` prompt) on 2026-10-20 and recorded by the agent. This is an owner decision, not a signature. The agent did not observe the owner test anything. The m0-007 and m0-008 browser runs were agent-executed and are not human tests. |
 
 On **Accept**: set the Status above to **CLOSED**, fill in **Closed by**, and close D-M0-1 in the
 [decision register](../engineering/decision-register.md). On **Reject**: list the issues; they

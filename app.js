@@ -59,6 +59,9 @@ apostrophe({
     'assurer-slideshow-widget': {},
     'assurer-product-grid-widget': {},
     'assurer-product-card-widget': {},
-    'assurer-demo': {}
+    'assurer-demo': {},
+    // Test-only tasks (CI admin bootstrap); refuse to run outside a
+    // temporary SQLite database.
+    'assurer-test': {}
   }
 });

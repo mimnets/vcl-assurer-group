@@ -5,6 +5,7 @@
 | **Purpose** | Close **D-M0-1**. Function was already verified by an agent in a browser ([m0-007 report](../engineering/reports/2026/10/2026-10-19-m0-007-browser-editor-acceptance.report.md), 23/23). This checklist asks only what a person can judge: is it usable? |
 | **Prepared** | 2026-10-19 (`m0-007`) |
 | **Time** | about 10 minutes, local only (`npm run dev`, http://localhost:3000) |
+| **Outcome** | **ACCEPTED by the owner, 2026-10-20.** D-M0-1 closed. See [Outcome](#outcome-2026-10-20) below. |
 
 ## Before you start
 
@@ -38,3 +39,18 @@ Answer **Yes / No**, with a note for any No.
   (added in m0-008): date, your role, Accept or Reject, and your notes. No passwords. (A separate
   dated report also works, but it takes the next task ID and shifts the planned M1 IDs.)
 - Then update D-M0-1 in the [decision register](../engineering/decision-register.md).
+
+## Outcome (2026-10-20)
+
+Recorded by the agent in `m1-009`. The owner's decision, verbatim:
+
+> "My VCL-ASSURER-GROUP Milestone 0 usability decision is: ACCEPT — authorize closure. No additional comments."
+
+- **Decision:** Accept. Conveyed through ChatGPT (the `m1-009` prompt) on 2026-10-20.
+- **Per-question answers:** not given, so the table above is left blank on purpose. The agent
+  does not fill it in on the owner's behalf.
+- **Question 9 (Global Styles):** not answered. D-M0-11 is unchanged.
+- The repository does not record which steps the owner personally performed. The m0-007 run
+  (23/23) was agent-executed and is not a human test.
+- Recorded in the [closure report §7](./m0-closure-report.md#7-owner-sign-off-human-usability-acceptance-d-m0-1)
+  and in D-M0-1 of the [decision register](../engineering/decision-register.md).
