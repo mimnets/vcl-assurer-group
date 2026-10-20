@@ -10,8 +10,8 @@
 
 - Look through the agent's screenshots in `evidence/m0-007/` (local, not in git).
 - Use **your own editor account**: `node app @apostrophecms/user:add <your-name> editor`.
-- While logged in as admin, archive the agent's test account **m0-007-demo-editor** (Users →
-  ⋮ → Archive).
+- ~~Archive the agent's test account **m0-007-demo-editor**~~: done in m0-008 (archived through
+  the core REST API; D-M0-10).
 
 ## Checklist
 
@@ -34,7 +34,7 @@ Answer **Yes / No**, with a note for any No.
 
 - **Accept** if 1–8 and 10 are Yes, or any No is a minor note you accept. Question 9 is a
   policy decision, not a pass/fail item.
-- Record it in a short dated report
-  (`docs/engineering/reports/YYYY/MM/YYYY-MM-DD-m0-NNN-human-usability-acceptance.report.md`):
-  date, your role, Accept or Reject, and your notes. No passwords.
+- Record it in the **owner sign-off section (§7) of the [M0 closure report](./m0-closure-report.md)**
+  (added in m0-008): date, your role, Accept or Reject, and your notes. No passwords. (A separate
+  dated report also works, but it takes the next task ID and shifts the planned M1 IDs.)
 - Then update D-M0-1 in the [decision register](../engineering/decision-register.md).

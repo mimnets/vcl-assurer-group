@@ -46,6 +46,37 @@ in `docs/architecture/decisions/`. If a request conflicts with a rule, stop and 
   credentials are read from the git-ignored `.env`).
   Report the **actual** results, including failures and anything not verified.
 
+### Browser acceptance testing (added m0-008)
+Automated suites call the API as admin. They do not prove that the UI works for real editors.
+Each task's report includes a browser checklist (see `docs/engineering/STANDARDS.md`).
+1. **Use the authorized Chrome extension** (Claude in Chrome) for end-to-end UI checks where the
+   task touches anything a user sees or does. Local hosts only, unless the owner approves otherwise.
+2. **Run the relevant browser checks at the end of every completed feature or phase**, after the
+   automated suites. Docs-only tasks run a short smoke check of the public site.
+3. **Test normal editor capabilities as a non-administrator.** Create a disposable account with the
+   supported `node app @apostrophecms/user:add <name> editor` task. Use admin only for admin-only
+   features.
+4. **Use real UI interactions**: clicks, typing, uploads, drag or arrows, publish. An HTTP status
+   or a visible control is not a pass on its own.
+5. **Check desktop, tablet and mobile layouts** (about 1440, 768 and 375 px) when layout or
+   templates change. Check for horizontal overflow.
+6. **For content changes, check draft/published isolation and access**: a draft is not public, a
+   published change is, an unpublished edit stays hidden, and logged-out users get no draft or
+   user data.
+7. **Capture sanitized evidence when it helps**, such as screenshots under `evidence/<task-id>/`
+   (git-ignored). No passwords, tokens, personal data or unrelated tabs in frame.
+8. **Keep browser credentials, sessions and sensitive screenshots out of Git**, reports and chat.
+   Keep test passwords in a scratch file outside the repository, or in `.env`.
+9. **Record each check as PASS, FAIL, BLOCKED or NOT TESTED**, with steps, the actual result and
+   evidence. Never record an expected result as an actual one.
+10. **Agent-executed acceptance is not human approval.** Label agent runs as agent-executed.
+    Business and usability approval comes only from a named human, recorded in the repository.
+11. **Clean up afterwards**: archive disposable test content and accounts through supported
+    Apostrophe UI, REST API or tasks. Never touch other people's content or accounts; never
+    hard-delete data. Record whatever is left over.
+12. **If Chrome is unavailable, stop and report it.** Mark the browser checks BLOCKED, and do not
+    swap in another tool without the owner's approval or claim browser tests that did not run.
+
 ### Records
 - Each task has an ID (`mN-NNN`), a prompt
   (`docs/engineering/prompts/YYYY/MM/YYYY-MM-DD-mN-NNN-*.prompt.md`) and a report
