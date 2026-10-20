@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | **Accepted.** PostgreSQL for staging and production remains conditional on the acceptance test (§6). |
+| **Status** | **Accepted.** PostgreSQL for staging and production remains conditional on the acceptance test (§6). **2026-10-20 (`m1-010`):** acceptance test run; agent recommendation **B, provisionally accepted with defined blockers** (§9), awaiting the owner (D-DB-6). Not a production commitment. |
 | **Approved by** | Project owner, 2026-10-19 (recorded in the [m0-004 prompt](../../engineering/prompts/2026/10/2026-10-19-m0-004-safe-git-initialization.prompt.md)) |
 | **Date** | 2026-10-19 |
 | **Task** | `m0-003` · report: [`2026-10-19-m0-003-database-strategy.report.md`](../../engineering/reports/2026/10/2026-10-19-m0-003-database-strategy.report.md) |
@@ -209,6 +209,52 @@ Summary; the full procedure is in the [new-site runbook](../../runbooks/new-site
 6. Starter content is loaded by **code**, using seed tasks like `assurer-demo:seed`, not by copying
    data. `@apostrophecms/import-export` (free) could move selected content, but it had 8 security
    advisories in October 2026. It needs its own review and a version of at least 3.7.1 before use.
+
+## 9. Acceptance test result (m1-010)
+
+Run on 2026-10-20 in a disposable, local-only environment. Full matrix and evidence:
+[m1-010 report](../../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md).
+Environment: PostgreSQL **16.15** (official Windows binaries, user-level, `127.0.0.1` only),
+`apostrophe` 4.34.0, `@apostrophecms/db-connect` 1.1.0 (both the latest published releases),
+`pg` 8.23.1, Node 24.21.0, Windows 11. The app role had no `CREATEDB` right, and the
+databases were pre-created as §1 requires.
+
+| §6 item | Result |
+|---|---|
+| 1. Restore the M0 data into an empty database, then migrate | **PASS.** A JSONL dump of a *copy* of the local SQLite database (85 docs, 34 attachments, 8 collections) restored in 1.5 s. Every document in every collection was identical after a re-dump. The text index was absent after restore and was rebuilt by `migrate` (as §2 predicts). 33 migrations were not re-run. |
+| 2. Smoke, workflow and persistence suites | **PASS.** Fresh DB: 14/14, 15/15 as admin, 15/15 as editor, 7/7 after restart. Migrated copy: 7/7. Restored copy: 14/14, 7/7. |
+| 3. Ten or more siblings in order | **PASS.** 12 children in rank order 0–11 (REST and the admin UI). The 1.1.0 numeric-sort fix holds. |
+| 4. Search | **PASS (matching).** The same 10 queries returned the same result sets on PostgreSQL and on a SQLite copy of the same data. Case-insensitive; no stemming. Relevance *ordering* was not compared (the REST list applies its default sort). |
+| 5. Concurrent editing | **PASS.** Two users edited different pages, 10 interleaved saves each, with no errors or lost updates. |
+| 6. Connection-pool soak | **PASS.** 15 min, 56,359 requests, 0 errors. PostgreSQL connections stayed between 8 and 13 with no growth. |
+| 7. `pg_dump`/`pg_restore` and JSONL round trip to SQLite | **PASS.** `pg_dump -Fc` of the running database restored into a new database: identical counts, 41 indexes, identical document content (md5), and the app passed every check on it. PostgreSQL → JSONL → SQLite: all 6 collections identical. |
+
+Additional findings:
+
+- **FAIL: connection loss crashes the app (D-DB-5).** db-connect 1.1.0 does not attach an
+  `error` listener to its `pg` pool. When PostgreSQL drops an idle connection, `pg-pool`
+  emits an unhandled `error` and the Node process exits (`read ECONNRESET`). PostgreSQL
+  itself recovered cleanly from the crash (WAL redo), and no acknowledged write was lost. Until
+  upstream fixes it, any shared environment needs a supervisor that restarts the app, and
+  health checks.
+- A hard kill of the app mid-write kept the last acknowledged revision. The stale
+  `@apostrophecms/page:tree` lock it left was taken over after restart.
+- A failed `apos-db-restore` (truncated input) exits 1 but leaves a **partial** database:
+  documents loaded, version history empty, `aposMigrations` missing. Always restore into a new
+  database, and discard it on any failure (§2 rule confirmed).
+- Media: 13 attachments → 91 files (original plus 6 sizes), none missing. A copy of the M0
+  media matched all 34 attachment records.
+
+**Outcome:** the §6 gate passes for every listed item, but the connection-loss crash blocks any
+shared or production use. PostgreSQL is therefore **provisionally accepted for development and
+CI only** (D-DB-6). Before staging, the following are required:
+
+- D-DB-5 resolved or mitigated.
+- A repeat on Linux with the managed service's major version.
+- The reviewed "sanitize after restore" task. The migrated copy carried 11 sessions.
+- D-DB-2, D-DB-3 and D-DB-4.
+
+MongoDB remains the fallback (Decision §2).
 
 ## Consequences
 

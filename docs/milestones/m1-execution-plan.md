@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is implemented and awaiting GitHub-hosted CI verification and PR review. The other workstreams are not started. |
-| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`) |
+| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; its outcome awaits the owner (D-DB-6). WS-3 to WS-5 are not started. |
+| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`) |
 | **Precondition** | Milestone 0 closed: met 2026-10-20 ([closure report](./m0-closure-report.md)). |
 | **Handoff** | [m1-handoff.md](./m1-handoff.md) |
 
@@ -28,7 +28,8 @@ allocation if the tasks start in this order.
 ## Workstream scope and exit criteria
 
 ### WS-2 — GitHub CI and security scanning (`m1-009`)
-- **Status (2026-10-20):** implemented on `ci/m1-009-github-actions` ([report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md)). Local checks and local negative tests pass. **GitHub-hosted runs are PENDING**, so the exit criterion is not yet met.
+- **Status (2026-10-20, m1-010):** merged (PR #11, `d0f4a05`); all five jobs green on GitHub; exit criterion met except the optional GitHub-side negative tests.
+- **Earlier status (2026-10-20):** implemented on `ci/m1-009-github-actions` ([report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md)). Local checks and local negative tests pass. **GitHub-hosted runs are PENDING**, so the exit criterion is not yet met.
 - **Detailed specification: [m1-009-ci-and-security-scanning-spec.md](./m1-009-ci-and-security-scanning-spec.md)**
   (prepared in m0-008). Summary: a GitHub Actions workflow with `npm ci`, ESLint, the production
   build, and the smoke, workflow and persistence suites on a fresh per-run SQLite database;
@@ -42,6 +43,7 @@ allocation if the tasks start in this order.
   public-site smoke check.
 
 ### WS-1 — PostgreSQL acceptance test (`m1-010`)
+- **Status (2026-10-20): done** ([m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md)). Every ADR-0002 §6 item passes. One failure: the app exits on database connection loss (D-DB-5). Recommendation B (provisional), awaiting the owner (D-DB-6).
 - A disposable PostgreSQL 16 instance (local container or throwaway managed instance). No shared
   database.
 - Run ADR-0002 §6 in full: restore the M0 JSONL dump into an empty database, run migrations,

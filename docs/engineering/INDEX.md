@@ -16,7 +16,8 @@ Git policy: [git-and-ci.md](./git-and-ci.md).
 | m0-006 | 2026-10-19 | Final Milestone 0 closure verification; M1 readiness | [prompt](./prompts/2026/10/2026-10-19-m0-006-final-m0-closure.prompt.md) | [report](./reports/2026/10/2026-10-19-m0-006-final-m0-closure.report.md) · [M1 execution plan](../milestones/m1-execution-plan.md) · [M1 handoff](../milestones/m1-handoff.md) · [M0 closure report](../milestones/m0-closure-report.md) (**pending**) | — | [PR #3](https://github.com/mimnets/vcl-assurer-group/pull/3) → `ef7bbc8` | Done; merged (verified in m0-007) |
 | m0-007 | 2026-10-19 | Browser-based editor acceptance (agent-executed) | [prompt](./prompts/2026/10/2026-10-19-m0-007-browser-editor-acceptance.prompt.md) · [finalization prompt](./prompts/2026/10/2026-10-19-m0-007-finalization-authorization.prompt.md) | [report](./reports/2026/10/2026-10-19-m0-007-browser-editor-acceptance.report.md) · [human usability checklist](../milestones/m0-human-usability-checklist.md) · [editor checklist](../milestones/m0-editor-acceptance-checklist.md) (agent results) | — | [PR #9](https://github.com/mimnets/vcl-assurer-group/pull/9) → `80bc50c` | Done; merged (verified in m0-008). 23/23 PASS (agent); D-GIT-3 risk accepted |
 | m0-008 | 2026-10-20 | Milestone 0 reconciliation; permanent browser-testing policy; m1-009 CI spec | [prompt](./prompts/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.prompt.md) | [report](./reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [m1-009 CI spec](../milestones/m1-009-ci-and-security-scanning-spec.md) · [M0 closure report](../milestones/m0-closure-report.md) (**CLOSED** 2026-10-20) | — | [PR #10](https://github.com/mimnets/vcl-assurer-group/pull/10) → `1ed5f54` | Done; merged (verified in m1-009). Regression and browser smoke PASS; editor account archived. M0 closed after owner acceptance (D-M0-1) |
-| m1-009 | 2026-10-20 | Milestone 0 closure (owner acceptance); GitHub Actions CI, isolated tests, gitleaks, audit baseline | [prompt](./prompts/2026/10/2026-10-20-m1-009-ci-and-security-scanning.prompt.md) | [report](./reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [M0 closure report](../milestones/m0-closure-report.md) (**CLOSED**) · [m1-009 spec](../milestones/m1-009-ci-and-security-scanning-spec.md) | — | Branch `ci/m1-009-github-actions`; PR to be opened by the owner (D-GIT-9) | M0 CLOSED. CI implemented; local checks and negative tests PASS; **GitHub-hosted CI PENDING** |
+| m1-009 | 2026-10-20 | Milestone 0 closure (owner acceptance); GitHub Actions CI, isolated tests, gitleaks, audit baseline | [prompt](./prompts/2026/10/2026-10-20-m1-009-ci-and-security-scanning.prompt.md) | [report](./reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [M0 closure report](../milestones/m0-closure-report.md) (**CLOSED**) · [m1-009 spec](../milestones/m1-009-ci-and-security-scanning-spec.md) | — | Branch `ci/m1-009-github-actions`; PR to be opened by the owner (D-GIT-9). **Update (m1-010):** [PR #11](https://github.com/mimnets/vcl-assurer-group/pull/11) → `d0f4a05` | M0 CLOSED. CI implemented; local checks and negative tests PASS. **Hosted CI verified green in m1-010** (all 5 jobs on the PR and `main` runs); D-CI-1 closed |
+| m1-010 | 2026-10-20 | Hosted CI verification; PostgreSQL compatibility acceptance (ADR-0002 §6) | [prompt](./prompts/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.prompt.md) | [report](./reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) | [ADR-0002 §9](../architecture/decisions/ADR-0002-database-strategy.md#9-acceptance-test-result-m1-010) | Branch `test/m1-010-postgresql-acceptance`; PR to be opened by the owner | Done (agent). Phase A PASS; PostgreSQL tests PASS except D15b (app exits on DB connection loss, D-DB-5). Recommendation **B, provisional**; awaiting owner (D-DB-6) |
 
 m0-005 has two prompt/report pairs: the owner issued the reconciliation prompt under the same task ID, to finish the same task once PR #1 was merged. Both pairs share the ID by design.
 
@@ -28,7 +29,7 @@ this convention and are preserved unchanged.
 | ADR | Title | Status | Task |
 |---|---|---|---|
 | [ADR-0001](../architecture/decisions/ADR-0001-cms-platform-and-starter.md) | CMS platform and starting point | Accepted | m0-001 |
-| [ADR-0002](../architecture/decisions/ADR-0002-database-strategy.md) | Database and media storage strategy | Accepted (PostgreSQL conditional) | m0-003 |
+| [ADR-0002](../architecture/decisions/ADR-0002-database-strategy.md) | Database and media storage strategy | Accepted (PostgreSQL conditional; m1-010 result: provisionally accepted for development and CI, D-DB-6 pending) | m0-003, m1-010 |
 
 ## Runbooks
 
@@ -40,6 +41,5 @@ this convention and are preserved unchanged.
 
 ## Next free task ID
 
-`m1-010`, planned for WS-1 (PostgreSQL acceptance test, [M1 plan](../milestones/m1-execution-plan.md)).
-Recording the GitHub-hosted CI results for m1-009 in the same PR needs no new ID. As a separate
-task it takes the next free ID, and the planned M1 IDs shift.
+`m1-011`, planned for WS-3 (security hardening, [M1 plan](../milestones/m1-execution-plan.md)).
+m1-010 recorded the m1-009 hosted CI results and ran the PostgreSQL acceptance test.
