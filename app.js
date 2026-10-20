@@ -56,6 +56,10 @@ apostrophe({
     '@apostrophecms/form-textarea-field-widget': {},
     '@apostrophecms/form-select-field-widget': {},
     '@apostrophecms/form-boolean-field-widget': {},
+    // Form operations (m1-012): notification email, administrator review
+    // and CSV export, retention task. Registered after @apostrophecms/form so
+    // its submission handler runs after the submission is stored.
+    'assurer-forms': {},
 
     // Assurer project modules. All project-specific modules use the
     // `assurer-` prefix so they are distinguishable from core and starter
