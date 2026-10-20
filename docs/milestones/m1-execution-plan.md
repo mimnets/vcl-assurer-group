@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; the owner decided D-DB-6 = Option B (development and testing only). WS-3 (`m1-011`) is merged (PR #13, `1978449`). WS-4 (`m1-012`) is done by the agent and awaits review. WS-5 is not started. |
-| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`, `m1-011`, `m1-012`) |
+| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; the owner decided D-DB-6 = Option B (development and testing only). WS-3 (`m1-011`) is merged (PR #13, `1978449`). WS-4 (`m1-012`) is merged (PR #14, `ad5253b`; hosted CI green). WS-5 planning (`m1-013`) is done by the agent and awaits architectural review; WS-5 implementation is not started. |
+| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`, `m1-011`, `m1-012`, `m1-013`) |
 | **Precondition** | Milestone 0 closed: met 2026-10-20 ([closure report](./m0-closure-report.md)). |
 | **Handoff** | [m1-handoff.md](./m1-handoff.md) |
 
@@ -81,6 +81,10 @@ allocation if the tasks start in this order.
 - **Exit:** the business owner and DPO sign off; tests cover export and deletion.
 
 ### WS-5 — Assurer content architecture (`m1-013`)
+- **Status (2026-10-20): planning done by the agent; awaiting architectural review** ([m1-013 report](../engineering/reports/2026/10/2026-10-20-m1-013-corporate-content-architecture.report.md)).
+  - Done: read-only inventory of all 29 WordPress sitemap URLs ([inventory](../content/wordpress-site-inventory.md)); proposed [information architecture](../content/corporate-information-architecture.md), [content model](../content/apostrophe-content-model.md) (ADR-0003 candidate), [SEO and migration plan](../content/seo-and-migration-plan.md), [editorial and design requirements](../content/editorial-and-design-requirements.md), [implementation plan and risks](../content/implementation-plan-and-risks.md).
+  - No code changed. Exit criterion not met: the content model is not yet approved (D-CONTENT-8), and the owner decisions D-CONTENT-1…12 are open.
+  - Implementation is split into tasks CA-1 to CA-7 (content model foundation, widgets, SEO plumbing, brand theme, content migration, privacy items, launch readiness). Each gets the next free ID when it starts.
 - Read-only inventory of the existing WordPress site: pages, URLs, media, menus, forms.
 - Navigation, sitemap and redirect map from the old URLs.
 - Content types: products, services, organizations, leadership (pieces, plus page types where

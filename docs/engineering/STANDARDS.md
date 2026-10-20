@@ -7,6 +7,7 @@ Established by task `m0-002` (2026-10-19). The index of all records is [INDEX.md
 ```
 docs/
 ├── architecture/decisions/   ADR-NNNN-*.md — decisions (see its README for lifecycle)
+├── content/                  site content planning: inventory, IA, content model, SEO (added m1-013)
 ├── engineering/
 │   ├── INDEX.md              links tasks ↔ prompts ↔ reports ↔ ADRs ↔ PRs
 │   ├── STANDARDS.md          this file

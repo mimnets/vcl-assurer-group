@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); updated 2026-10-20 (`m1-011`); **updated 2026-10-20 (`m1-012`)** |
+| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); updated 2026-10-20 (`m1-011`); updated 2026-10-20 (`m1-012`); **updated 2026-10-20 (`m1-013`)** |
 | **Milestone 0** | **CLOSED 2026-10-20.** The owner accepted human usability (D-M0-1), and Milestone 1 is approved (D-M1-0). See [closure report §7](./m0-closure-report.md#7-owner-sign-off-human-usability-acceptance-d-m0-1). |
-| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is merged (PR #13, `1978449`; hosted CI green). `m1-012` (form operations) is done by the agent and awaits review (D-GIT-11). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
-| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-012 report](../engineering/reports/2026/10/2026-10-20-m1-012-form-operations-and-privacy.report.md) · [form operations runbook](../runbooks/form-operations-and-privacy.md) · [m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md) · [security configuration](../runbooks/security-configuration.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
+| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is merged (PR #13, `1978449`; hosted CI green). `m1-012` (form operations) is merged (PR #14, `ad5253b`; hosted CI green). `m1-013` (WS-5 inventory and content architecture, documentation only) is done by the agent and awaits architectural review (D-GIT-12). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
+| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-013 report](../engineering/reports/2026/10/2026-10-20-m1-013-corporate-content-architecture.report.md) · [content model](../content/apostrophe-content-model.md) · [implementation plan and risks](../content/implementation-plan-and-risks.md) · [m1-012 report](../engineering/reports/2026/10/2026-10-20-m1-012-form-operations-and-privacy.report.md) · [form operations runbook](../runbooks/form-operations-and-privacy.md) · [m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md) · [security configuration](../runbooks/security-configuration.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
 
 ## Start-of-session checklist (new Claude Code session)
 
@@ -67,6 +67,28 @@ addition (including GitHub Actions and gitleaks) needs approval.
 | Editors can change site-wide Global Styles, and can publish and archive | D-M0-11 | Review before staff rollout (M1 role design) |
 | The local backup archives hold secrets and are not encrypted | D-M0-9 | Owner |
 | SQLite: single writer, no replication | S7 | Local only, by design |
+
+## m1-013 status (2026-10-20)
+
+- **Documentation only. No code, configuration or dependency changed.** New folder `docs/content/`
+  (added to the STANDARDS.md layout).
+- Read-only inventory of `https://www.assurerworld.com`: all 29 WordPress sitemap URLs fetched
+  once (26 pages, 1 post, 2 archives), plus redirects, media and document references. No login,
+  no form submission, no scanning, no media download. Findings for the owner about the live site
+  (PHP notices exposing a server path, the published `admin` username, personal contact details)
+  are in [inventory §9](../content/wordpress-site-inventory.md#9-security-and-privacy-observations-read-only-for-the-owner).
+- Proposed: [information architecture](../content/corporate-information-architecture.md) (all content
+  URLs kept; new `/about`, `/group`, `/products`, `/services`, `/privacy`),
+  [content model](../content/apostrophe-content-model.md) (2 page types, 4 piece types, global settings,
+  8 widgets; ADR-0003 candidate), [SEO and migration plan](../content/seo-and-migration-plan.md),
+  [editorial and design requirements](../content/editorial-and-design-requirements.md), and
+  [implementation plan and risks](../content/implementation-plan-and-risks.md) (tasks CA-1 to CA-7).
+- Verified in the installed core: the trailing-slash redirect is **302** (locally `/x/` → `/x`);
+  `@apostrophecms/soft-redirect` defaults to 302; core ships an inactive provider-agnostic AI engine
+  (`@apostrophecms/ai`) that a later AI-drafting phase could build on.
+- Open owner decisions: D-CONTENT-1 to D-CONTENT-12 (sitemap, group pages, legacy pages, leadership
+  privacy, sustainability evidence, news, languages, content model / ADR-0003, video, SEO
+  dependencies, publishing workflow, brand and content supply).
 
 ## m1-012 status (2026-10-20)
 
@@ -146,7 +168,20 @@ addition (including GitHub Actions and gitleaks) needs approval.
 - Stale remote branches from M0 (`docs/m0-004…`, `docs/m0-005…`, `docs/m0-006…`,
   `test/m0-007…`) are merged. The owner may delete them; the agent does not.
 
-## Required next action (owner), updated in m1-012
+## Required next action (owner), updated in m1-013
+
+1. Review the m1-013 report and the `docs/content/` documents (architectural review). Open the PR
+   from `docs/m1-013-corporate-content-architecture`, check the five CI checks, and merge (D-GIT-12).
+2. Decide D-CONTENT-1 (sitemap and navigation), D-CONTENT-2 (group pages and entity facts) and
+   D-CONTENT-8 (content model, ADR-0003). These unblock CA-1. Decide D-CONTENT-10 (SEO dependencies)
+   before CA-3.
+3. Start supplying brand assets and confirmed business content (D-CONTENT-12), and decide leadership
+   privacy (D-CONTENT-4) with the DPO.
+4. Pass the live-site observations (inventory §9) to whoever runs the WordPress host. The project does
+   not touch the WordPress site.
+5. Start `m1-014` (CA-1, content model foundation) in a **new Claude Code session**.
+
+### Earlier list (m1-012; item 1 done as PR #14, item 4 done as m1-013)
 
 1. Review the m1-012 report. Open the PR from `feat/m1-012-form-operations`, check the five CI
    checks (the `test` job now runs the form-operations suite), and merge (D-GIT-11).
