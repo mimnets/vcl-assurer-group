@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; the owner decided D-DB-6 = Option B (development and testing only). WS-3 (`m1-011`) is done by the agent and awaits review. WS-4 and WS-5 are not started. |
-| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`, `m1-011`) |
+| **Status** | **Approved and started 2026-10-20** (D-M1-0, owner, m1-009 prompt). WS-2 (`m1-009`) is merged and its hosted CI verified (m1-010). WS-1 (`m1-010`) is done; the owner decided D-DB-6 = Option B (development and testing only). WS-3 (`m1-011`) is merged (PR #13, `1978449`). WS-4 (`m1-012`) is done by the agent and awaits review. WS-5 is not started. |
+| **Prepared** | 2026-10-19 (`m0-006`); IDs and WS-2 updated 2026-10-20 (`m0-008`); status updated 2026-10-20 (`m1-009`, `m1-010`, `m1-011`, `m1-012`) |
 | **Precondition** | Milestone 0 closed: met 2026-10-20 ([closure report](./m0-closure-report.md)). |
 | **Handoff** | [m1-handoff.md](./m1-handoff.md) |
 
@@ -71,6 +71,10 @@ allocation if the tasks start in this order.
 - **Exit:** findings S1–S3 and S9 closed or accepted with dates in the decision register.
 
 ### WS-4 — Form operations (`m1-012`)
+- **Status (2026-10-20): done by the agent; awaiting architectural review** ([m1-012 report](../engineering/reports/2026/10/2026-10-20-m1-012-form-operations-and-privacy.report.md), [runbook](../runbooks/form-operations-and-privacy.md)).
+  - Built: env-configured notifications (core email module, no new dependency), the D-SEC-3 widget fix, an admin-only review page and CSV export, and a retention task (dry run plus guarded delete).
+  - Not yet verified or enabled: real delivery, pending a provider (D-M0-3, D-FORM-4); retention, pending the period (D-FORM-2); anti-spam choice (D-FORM-3).
+  - Exit criterion not met: the business owner and DPO have not signed off.
 - Email notifications via `@apostrophecms/email` (D-M0-3), with SPF/DKIM for the sender.
 - Submission access: an export task or an admin view (D-M0-4).
 - Retention: scheduled deletion (recommended 180 days) and a privacy notice on the form (S4).

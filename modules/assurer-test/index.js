@@ -11,20 +11,28 @@
 // directory or RUNNER_TEMP, NODE_ENV is not production, and a password of at
 // least 16 characters is set (see lib/guard.js). Idempotent: an existing
 // account with that username is left unchanged.
+//
+//   node app assurer-test:backdate-submissions --days=<n> --count=<n>
+//
+// (m1-012) Moves the creation date of the <count> oldest form submissions
+// <days> days into the past, so the retention task's deletion can be tested
+// on disposable data. Same safety checks as ensure-admin.
 import { refuseReason } from './lib/guard.js';
 
-const TASK = 'assurer-test:ensure-admin';
+const TASKS = [ 'assurer-test:ensure-admin', 'assurer-test:backdate-submissions' ];
 
 // Refuse before Apostrophe connects to the database or runs migrations.
 // `.env` has already been loaded by app.js at this point.
-if (process.argv.includes(TASK)) {
-  assertSafe();
+for (const task of TASKS) {
+  if (process.argv.includes(task)) {
+    assertSafe(task);
+  }
 }
 
-function assertSafe() {
+function assertSafe(task) {
   const reason = refuseReason(process.env);
   if (reason) {
-    throw new Error(`Refusing to run ${TASK}: ${reason}.`);
+    throw new Error(`Refusing to run ${task}: ${reason}.`);
   }
 }
 
@@ -35,13 +43,19 @@ export default {
         usage: 'Create the CI test admin from APOS_TEST_USER / APOS_TEST_PASSWORD ' +
           'on a temporary SQLite database.\nUsage: node app assurer-test:ensure-admin',
         task: () => self.ensureAdmin()
+      },
+      'backdate-submissions': {
+        usage: 'Test only: backdate the <count> oldest form submissions by <days> days ' +
+          'on a temporary SQLite database.\n' +
+          'Usage: node app assurer-test:backdate-submissions --days=400 --count=3',
+        task: (argv) => self.backdateSubmissions(argv)
       }
     };
   },
   methods(self) {
     return {
       async ensureAdmin() {
-        assertSafe();
+        assertSafe(TASKS[0]);
         const req = self.apos.task.getReq();
         const username = process.env.APOS_TEST_USER;
         const existing = await self.apos.user.find(req, { username })
@@ -58,6 +72,26 @@ export default {
           password: process.env.APOS_TEST_PASSWORD
         });
         self.apos.util.log('Test admin created.');
+      },
+
+      async backdateSubmissions(argv) {
+        assertSafe(TASKS[1]);
+        const days = Number(argv.days);
+        const count = Number(argv.count);
+        const positive = n => Number.isInteger(n) && n > 0;
+        if (!positive(days) || !positive(count)) {
+          throw new Error('--days and --count must be positive whole numbers.');
+        }
+        const collection = self.apos.modules['@apostrophecms/form'].db;
+        const rows = await collection.find({})
+          .sort({ createdAt: 1 })
+          .limit(count)
+          .toArray();
+        const createdAt = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        for (const row of rows) {
+          await collection.updateOne({ _id: row._id }, { $set: { createdAt } });
+        }
+        self.apos.util.log(`Backdated ${rows.length} submissions to ${createdAt.toISOString()}.`);
       }
     };
   }

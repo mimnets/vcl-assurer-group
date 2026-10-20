@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); **updated 2026-10-20 (`m1-011`)** |
+| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); updated 2026-10-20 (`m1-011`); **updated 2026-10-20 (`m1-012`)** |
 | **Milestone 0** | **CLOSED 2026-10-20.** The owner accepted human usability (D-M0-1), and Milestone 1 is approved (D-M1-0). See [closure report §7](./m0-closure-report.md#7-owner-sign-off-human-usability-acceptance-d-m0-1). |
-| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is done by the agent and awaits review (D-GIT-10). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
-| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md) · [security configuration](../runbooks/security-configuration.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
+| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is merged (PR #13, `1978449`; hosted CI green). `m1-012` (form operations) is done by the agent and awaits review (D-GIT-11). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
+| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-012 report](../engineering/reports/2026/10/2026-10-20-m1-012-form-operations-and-privacy.report.md) · [form operations runbook](../runbooks/form-operations-and-privacy.md) · [m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md) · [security configuration](../runbooks/security-configuration.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
 
 ## Start-of-session checklist (new Claude Code session)
 
@@ -63,10 +63,38 @@ addition (including GitHub Actions and gitleaks) needs approval.
 | PostgreSQL provisional only: untested on Linux and managed versions; dumps carry sessions (no sanitize task yet) | D-DB-6 | Owner decision; before staging |
 | ~~No security headers, `Secure` cookies or rate limiting~~ Mitigated in m1-011: headers with a baseline CSP, env-driven Secure cookies and trusted proxies, per-IP form limit. Open: resource CSP, per-IP login limit, CAPTCHA, real-TLS verification | S1–S3, D-M0-5, D-SEC-2 | `m1-011` done; rest before internet-facing launch |
 | `npm audit`: **43** findings (38 moderate, **5 high**, 0 critical) on 2026-10-20, all upstream (`apostrophe` transitive dependencies; dev-only `nodemon` via `braces`) | S5, D-M0-5 | Baseline in `m1-009`; re-decided in `m1-011`. `audit fix --force` would downgrade core, so it is not used |
-| Form submissions kept indefinitely; no email or export | S4, D-M0-3/4 | `m1-012` |
+| ~~Form submissions kept indefinitely; no email or export~~ Built in m1-012: notifications (sink-verified only), admin review page and CSV export, and a retention task. Open: provider, sender domain, retention period, anti-spam choice | S4, D-M0-3/4, D-FORM-1…5 | Owner/DPO decisions; retention not enabled |
 | Editors can change site-wide Global Styles, and can publish and archive | D-M0-11 | Review before staff rollout (M1 role design) |
 | The local backup archives hold secrets and are not encrypted | D-M0-9 | Owner |
 | SQLite: single writer, no replication | S7 | Local only, by design |
+
+## m1-012 status (2026-10-20)
+
+- **No new dependency.** Email uses core's `@apostrophecms/email` (nodemailer, shipped with
+  apostrophe), configured from `APOS_SMTP_*` env only.
+- **New module:** `modules/assurer-forms/`:
+  - notification status on each submission;
+  - replay key against duplicates;
+  - `/assurer/form-submissions` and its CSV export (admins only);
+  - `assurer-forms:retry-notifications`, and `assurer-forms:retention` (dry run by default).
+- **Overrides:**
+  - `modules/@apostrophecms/form-widget/ui/src/index.js` (D-SEC-3 browser fix; upstream hash
+    pinned in a unit test);
+  - `modules/@apostrophecms/email/index.js`;
+  - visitor confirmation email removed in `modules/@apostrophecms/form/index.js`.
+- **New tests and tools:** `scripts/form-ops.test.mjs` (unit), `scripts/form-ops-test.mjs`
+  (`npm run test:forms`, and part of `test:ci` with a local SMTP sink), `scripts/smtp-sink.mjs`,
+  and the test-only `assurer-test:backdate-submissions`.
+- **Not done (owner decisions):**
+  - real mail delivery (D-M0-3, D-FORM-4);
+  - the retention period (D-FORM-2; nothing deleted);
+  - mailbox content (D-FORM-1);
+  - anti-spam (D-FORM-3);
+  - staff roles and erasure (D-FORM-5);
+  - filing the upstream issues (D-SEC-3, D-DB-5;
+    [drafts](./m1-012-upstream-issue-drafts.md)).
+- The local dev database now holds 20 demo/test submissions (one more from `test:smoke`). The
+  browser run used a disposable instance (temporary SQLite), which was deleted afterwards.
 
 ## m1-011 status (2026-10-20)
 
@@ -118,7 +146,20 @@ addition (including GitHub Actions and gitleaks) needs approval.
 - Stale remote branches from M0 (`docs/m0-004…`, `docs/m0-005…`, `docs/m0-006…`,
   `test/m0-007…`) are merged. The owner may delete them; the agent does not.
 
-## Required next action (owner), updated in m1-011
+## Required next action (owner), updated in m1-012
+
+1. Review the m1-012 report. Open the PR from `feat/m1-012-form-operations`, check the five CI
+   checks (the `test` job now runs the form-operations suite), and merge (D-GIT-11).
+2. Decide D-FORM-1 to D-FORM-5 and D-M0-3/D-M0-4 with the DPO/IT: provider, mailbox, sender
+   domain, mailbox content, retention period, anti-spam and staff access.
+3. File the upstream issues (D-SEC-3, D-DB-5) from the
+   [drafts](./m1-012-upstream-issue-drafts.md).
+4. Start the next task in a **new Claude Code session**:
+   - `m1-013` (WS-5 content architecture); or
+   - a small D-FORM-3 honeypot task, once approved; or
+   - the D-DB-5 validation.
+
+### Earlier list (m1-011; item 1 done, item 2 prepared but not filed, item 4 done as m1-012)
 
 1. Review the m1-011 report (architectural review). Open the PR from `feat/m1-011-security-hardening`, check the five CI checks, and merge (D-GIT-10).
 2. Approve and file the upstream issues (D-DB-5, D-SEC-3), or ask the agent to file them through an approved integration.

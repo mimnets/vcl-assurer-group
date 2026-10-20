@@ -57,7 +57,7 @@ lockfile, `permissions: contents: read`, no repository secrets, and one run per 
 |---|---|---|
 | `lint` | `npm run lint` | any ESLint error |
 | `build` | `npm run build` with `APOS_RELEASE_ID=$GITHUB_SHA`, a generated, masked session secret and a throwaway SQLite path | the build exits non-zero |
-| `test` | `npm run test:unit`, then `npm run test:ci` | a unit test, the smoke (14), workflow (15), persistence (7), security (65) or HTTPS-proxy security (15) suite fails, or the server does not start (security suites added in m1-011) |
+| `test` | `npm run test:unit`, then `npm run test:ci` | a unit test, the smoke (14), workflow (15), persistence (7), form-operations (77), security (65) or HTTPS-proxy security (15) suite fails, or the server does not start (security suites added in m1-011; form-operations suite with a local SMTP sink in m1-012) |
 | `secrets` | gitleaks 8.30.1 (pinned, SHA-256 verified) over the full git history, `--redact` | any finding not allowed by `.gitleaks.toml` (no allowlist entries today) |
 | `audit` | `npm run audit:check` against `security/audit-baseline.json` | a high or critical advisory not in the baseline, a baselined advisory that got worse or reaches a new package, or an expired or invalid baseline entry |
 
@@ -70,7 +70,9 @@ report on the PR, and the owner merges only green PRs.
   otherwise the OS temp directory) with a fresh SQLite database and uploads folder, a generated
   session secret and test-admin password (never printed), `.env` ignored. It creates the admin
   with `node app assurer-test:ensure-admin`, seeds the demo, starts the server on port 3100
-  (`CI_TEST_PORT` overrides), runs smoke and workflow, restarts, runs persistence, then deletes
+  (`CI_TEST_PORT` overrides), runs smoke and workflow, restarts, runs persistence, restarts with
+  notifications pointed at a local SMTP sink and runs the form-operations suite (m1-012), then
+  the security suites (m1-011), then deletes
   the temp directory (`-- --keep` keeps it). Your dev server can keep running on port 3000. The
   first run builds the development assets, as `npm start` does.
 - `assurer-test:ensure-admin` refuses to run unless `APOS_DB_URI` is a `sqlite://` file under

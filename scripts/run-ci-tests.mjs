@@ -10,9 +10,13 @@
 // read, so the developer database, media folder and credentials are never
 // used. Steps: create the test admin (assurer-test:ensure-admin), seed demo
 // content, start the server, run the smoke and editor-workflow suites, restart
-// the server, run the persistence check and the security suite, restart once
-// more as if behind an HTTPS proxy (APOS_HTTPS, APOS_TRUST_PROXY, HSTS; m1-011)
-// and run the security suite in proxy mode, then stop and delete everything.
+// the server, run the persistence check, restart with notification email
+// pointed at a local SMTP sink and run the form-operations suite (m1-012),
+// then the security suite, restart once more as if behind an HTTPS proxy
+// (APOS_HTTPS, APOS_TRUST_PROXY, HSTS; m1-011) and run the security suite in
+// proxy mode, then stop and delete everything. The sink never relays mail,
+// and the SMTP password is a random per-run value the form suite checks for
+// leaks.
 // Uses Node built-ins only.
 
 import { spawn } from 'node:child_process';
@@ -35,10 +39,12 @@ const START_TIMEOUT_MS = 180 * 1000;
 const work = await mkdtemp(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'vcl-ci-'));
 const secret = randomBytes(32).toString('hex');
 const password = randomBytes(24).toString('hex');
+const smtpPassword = randomBytes(24).toString('hex');
 if (process.env.GITHUB_ACTIONS === 'true') {
   // Workflow commands: these lines are consumed by the runner, not logged.
   console.log(`::add-mask::${secret}`);
   console.log(`::add-mask::${password}`);
+  console.log(`::add-mask::${smtpPassword}`);
 }
 const emptyEnvFile = path.join(work, 'empty.env');
 await writeFile(emptyEnvFile, '');
@@ -62,6 +68,25 @@ const env = {
   BASE_URL
 };
 
+// A free local port for the SMTP sink that scripts/form-ops-test.mjs runs.
+const smtpPort = await new Promise((resolve, reject) => {
+  const probe = net.createServer();
+  probe.once('error', reject);
+  probe.listen(0, '127.0.0.1', () => {
+    const { port } = probe.address();
+    probe.close(() => resolve(port));
+  });
+});
+const formsEnv = {
+  APOS_SMTP_HOST: '127.0.0.1',
+  APOS_SMTP_PORT: String(smtpPort),
+  APOS_SMTP_REQUIRE_TLS: '0',
+  APOS_SMTP_USER: 'ci-smtp-user',
+  APOS_SMTP_PASSWORD: smtpPassword,
+  APOS_EMAIL_FROM: 'website@example.test',
+  APOS_FORM_NOTIFY_TO: 'forms-inbox@example.test'
+};
+
 const summary = [];
 let server = null;
 let serverLog = null;
@@ -71,12 +96,15 @@ function header(title) {
   console.log(`\n== ${title}`);
 }
 
-function run(title, args) {
+function run(title, args, extraEnv = {}) {
   header(title);
   return new Promise((resolve) => {
     const child = spawn(process.execPath, args, {
       cwd: root,
-      env,
+      env: {
+        ...env,
+        ...extraEnv
+      },
       stdio: 'inherit'
     });
     child.on('exit', (code) => {
@@ -173,6 +201,13 @@ async function steps() {
     await run('editor workflow test', [ 'scripts/editor-workflow-test.mjs' ]) &&
     await stopServer().then(() => startServer('restart')) &&
     await run('persistence test after restart', [ 'scripts/editor-workflow-test.mjs', '--verify-only' ]) &&
+    await stopServer().then(() => startServer('forms', formsEnv)) &&
+    await run('form operations test', [ 'scripts/form-ops-test.mjs' ], {
+      ...formsEnv,
+      FORM_OPS_SMTP_PORT: String(smtpPort),
+      FORM_OPS_DISPOSABLE: '1',
+      SERVER_LOG: serverLog
+    }) &&
     await run('security test', [ 'scripts/security-test.mjs' ]) &&
     await stopServer().then(() => startServer('https-proxy', {
       APOS_HTTPS: '1',
