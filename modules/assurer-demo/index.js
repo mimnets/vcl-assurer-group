@@ -3,11 +3,21 @@
 //   node app assurer-demo:seed           (skips if the home page has content)
 //   node app assurer-demo:seed --force   (replaces the home page content)
 //
+// and fictional records for the corporate content model (m1-014, ADR-0003):
+//
+//   node app assurer-demo:seed-corporate                  (temporary SQLite only)
+//   node app assurer-demo:seed-corporate --dev-database   (another dev database)
+//
+// The corporate seed refuses to run in production, adds only missing records
+// and never edits existing ones (lib/corporate.js, lib/guard.js).
+//
 // Everything goes through Apostrophe's own `convert` (the same sanitization
 // path the editor UI uses) and is published through the normal draft/publish
 // workflow. It never touches users or any external system.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { seedCorporate } from './lib/corporate.js';
+import { seedRefuseReason } from './lib/guard.js';
 
 const imagesDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -26,6 +36,18 @@ const IMAGES = {
 
 const FORM_TITLE = 'DEMO – Contact Assurer';
 
+// Refuse before Apostrophe connects to the database or runs migrations.
+if (process.argv.includes('assurer-demo:seed-corporate')) {
+  assertCorporateSeedAllowed(process.argv);
+}
+
+function assertCorporateSeedAllowed(argv) {
+  const reason = seedRefuseReason(process.env, argv);
+  if (reason) {
+    throw new Error(`Refusing to run assurer-demo:seed-corporate: ${reason}.`);
+  }
+}
+
 export default {
   tasks(self) {
     return {
@@ -33,6 +55,12 @@ export default {
         usage: 'Load Milestone 0 demonstration content onto the home page.\n' +
           'Usage: node app assurer-demo:seed [--force]',
         task: (argv) => self.seed(argv)
+      },
+      'seed-corporate': {
+        usage: 'Add fictional demo products, organizations, people, locations, a division ' +
+          'page and category pages (ADR-0003). Adds missing records only.\n' +
+          'Usage: node app assurer-demo:seed-corporate [--dev-database]',
+        task: () => self.seedCorporate()
       }
     };
   },
@@ -51,6 +79,20 @@ export default {
     });
 
     return {
+      async seedCorporate() {
+        assertCorporateSeedAllowed(process.argv);
+        const req = self.apos.task.getReq({ mode: 'draft' });
+        const images = {};
+        for (const key of [ 'home', 'motor', 'business' ]) {
+          const [ file, title, alt ] = IMAGES[key];
+          images[key] = await self.ensureImage(req, file, title, alt);
+        }
+        const created = await seedCorporate(self, images);
+        self.apos.util.log(created.length
+          ? `Corporate demo records created: ${created.length}\n  ${created.join('\n  ')}`
+          : 'Corporate demo records already present; nothing changed.');
+      },
+
       async seed(argv) {
         const req = self.apos.task.getReq({ mode: 'draft' });
         const home = await self.apos.page.find(req, { level: 0 }).toObject();

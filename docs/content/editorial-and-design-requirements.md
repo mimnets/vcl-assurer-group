@@ -29,12 +29,32 @@ and page types; areas and widgets; pieces (products, companies, people, location
 and how widgets display them; images and alt text; drafts, preview, publish, versions; what not
 to change (Global Styles).
 
+### m1-014 update: editor behaviour as built
+
+Verified by the agent as a non-admin editor (not human acceptance; see the [m1-014 report](../engineering/reports/2026/10/2026-10-20-m1-014-content-model-foundation.report.md#browser-acceptance)).
+
+- **Page types:** "Division / overview" and "Product category" are in the page type list. Records
+  (Products, Organizations, People, Locations) each have a manager in the admin bar.
+- **Product placement:** a product's categories are set on the product (Placement tab). The
+  category page lists them by display order.
+- **Publish before linking:** relationship pickers only offer **published** pages. Publish a new
+  category page before assigning products to it.
+- **Privacy:** people have no phone or email fields. Location contact details appear only when
+  "Show contact details" is on (default off).
+- **Global Content** (gear icon) holds contact, footer and header-button settings. Editors can
+  change and publish it (D-CONTENT-11).
+- **Navigation:** the menu follows the page tree. Drag pages to reorder them, and use "Hide in
+  Navigation" to leave a page out of the menu while it stays reachable.
+- **Responsive preview (journey 9):** the core breakpoint preview works with the project's CSS.
+  The Mobile and Tablet presets switch to the Menu button with no horizontal overflow. The
+  Tablet preset is 1024 px wide, not 768 px.
+
 ## 2. Component inventory
 
 | Component | Source | Used on | Status |
 |---|---|---|---|
-| Site header with two-level menu | `views/layout.jsx` | all | **Planned** (today: one level) |
-| Footer from global settings | `views/layout.jsx` + global | all | **Planned** (today: hard-coded) |
+| Site header with two-level menu | `views/layout.jsx`, `modules/asset/ui/src/nav.js` | all | **Implemented (m1-014)**: page tree, two levels, core "Hide in Navigation", keyboard and touch, optional header button from Global Content |
+| Footer from global settings | `views/layout.jsx` + global | all | **Implemented (m1-014)**: footer text, contact, locations, social links, copyright name; falls back to the old line when empty |
 | Breadcrumbs | layout | all except home | **Planned** |
 | Hero | `assurer-hero` | home, divisions, categories, corporate pages | Implemented |
 | Slideshow | `assurer-slideshow` | home | Implemented |

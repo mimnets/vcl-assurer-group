@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); updated 2026-10-20 (`m1-011`); updated 2026-10-20 (`m1-012`); **updated 2026-10-20 (`m1-013`)** |
+| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); updated 2026-10-20 (`m1-011`); updated 2026-10-20 (`m1-012`); updated 2026-10-20 (`m1-013`); **updated 2026-10-20 (`m1-014`)** |
 | **Milestone 0** | **CLOSED 2026-10-20.** The owner accepted human usability (D-M0-1), and Milestone 1 is approved (D-M1-0). See [closure report §7](./m0-closure-report.md#7-owner-sign-off-human-usability-acceptance-d-m0-1). |
-| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is merged (PR #13, `1978449`; hosted CI green). `m1-012` (form operations) is merged (PR #14, `ad5253b`; hosted CI green). `m1-013` (WS-5 inventory and content architecture, documentation only) is done by the agent and awaits architectural review (D-GIT-12). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
-| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-013 report](../engineering/reports/2026/10/2026-10-20-m1-013-corporate-content-architecture.report.md) · [content model](../content/apostrophe-content-model.md) · [implementation plan and risks](../content/implementation-plan-and-risks.md) · [m1-012 report](../engineering/reports/2026/10/2026-10-20-m1-012-form-operations-and-privacy.report.md) · [form operations runbook](../runbooks/form-operations-and-privacy.md) · [m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md) · [security configuration](../runbooks/security-configuration.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
+| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is merged (PR #13, `1978449`; hosted CI green). `m1-012` (form operations) is merged (PR #14, `ad5253b`; hosted CI green). `m1-013` (WS-5 inventory and content architecture) is merged (PR #15, `15ef1a3`; hosted CI green). `m1-014` (CA-1, content model foundation, ADR-0003) is done by the agent and awaits architectural review (D-GIT-13). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
+| **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-014 report](../engineering/reports/2026/10/2026-10-20-m1-014-content-model-foundation.report.md) · [ADR-0003](../architecture/decisions/ADR-0003-corporate-content-model.md) · [m1-013 report](../engineering/reports/2026/10/2026-10-20-m1-013-corporate-content-architecture.report.md) · [content model](../content/apostrophe-content-model.md) · [implementation plan and risks](../content/implementation-plan-and-risks.md) · [m1-012 report](../engineering/reports/2026/10/2026-10-20-m1-012-form-operations-and-privacy.report.md) · [form operations runbook](../runbooks/form-operations-and-privacy.md) · [m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md) · [security configuration](../runbooks/security-configuration.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
 
 ## Start-of-session checklist (new Claude Code session)
 
@@ -67,6 +67,32 @@ addition (including GitHub Actions and gitleaks) needs approval.
 | Editors can change site-wide Global Styles, and can publish and archive | D-M0-11 | Review before staff rollout (M1 role design) |
 | The local backup archives hold secrets and are not encrypted | D-M0-9 | Owner |
 | SQLite: single writer, no replication | S7 | Local only, by design |
+
+## m1-014 status (2026-10-20)
+
+- **ADR-0003 accepted** on the owner's approval of D-CONTENT-1, D-CONTENT-8 and, in part,
+  D-CONTENT-2 (m1-014 prompt). No new dependency, no SEO package, no migration.
+- **New modules:**
+  - piece types `assurer-product`, `assurer-organization`, `assurer-person` (no contact
+    fields), `assurer-location`;
+  - page types `assurer-division-page`, `assurer-product-category-page`;
+  - `modules/@apostrophecms/global` (contact, footer, header button).
+- **Changed behaviour:**
+  - the two-level page-tree menu with core "Hide in Navigation" (`views/layout.jsx`,
+    `modules/asset/ui/src/nav.js`);
+  - the footer now comes from Global Content, with the old line as the fallback.
+- **New tasks:**
+  - `node app assurer-demo:seed-corporate`: fictional records. It refuses to run in
+    production, runs on a temporary SQLite database, and needs `--dev-database` for any
+    other database. It adds missing records only.
+  - `assurer-test:ensure-editor`: CI only.
+- **New tests:** `scripts/content-model-test.mjs` (in `test:ci`) and
+  `scripts/content-model.test.mjs` (unit).
+- **The owner's development database was not changed.** On its next start it simply gains the
+  new (empty) types. The corporate demo records are not in it unless the owner runs the seed
+  with `--dev-database`.
+- **Editor note:** relationship pickers only offer published pages. Publish a category page
+  before assigning products to it.
 
 ## m1-013 status (2026-10-20)
 
@@ -168,7 +194,18 @@ addition (including GitHub Actions and gitleaks) needs approval.
 - Stale remote branches from M0 (`docs/m0-004…`, `docs/m0-005…`, `docs/m0-006…`,
   `test/m0-007…`) are merged. The owner may delete them; the agent does not.
 
-## Required next action (owner), updated in m1-013
+## Required next action (owner), updated in m1-014
+
+1. Review the m1-014 report and ADR-0003. Open the PR from `feat/m1-014-content-model-foundation`,
+   check the five CI checks, and merge (D-GIT-13).
+2. Optional: a human pass of the editor journeys (pieces, division and category pages, Global
+   Content, menu) on a disposable copy.
+3. Decide D-CONTENT-10 (SEO packages) before CA-3; continue D-CONTENT-12 (brand and confirmed
+   content) and D-CONTENT-4 (leadership privacy) with the DPO; confirm the group entities
+   (D-CONTENT-2).
+4. Start `m1-015` (CA-2, listing and section widgets) in a **new Claude Code session**.
+
+### Earlier list (m1-013; item 1 done as PR #15, item 2 decided in the m1-014 prompt, item 5 done as m1-014)
 
 1. Review the m1-013 report and the `docs/content/` documents (architectural review). Open the PR
    from `docs/m1-013-corporate-content-architecture`, check the five CI checks, and merge (D-GIT-12).

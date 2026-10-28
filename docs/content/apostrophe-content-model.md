@@ -4,9 +4,25 @@
 |---|---|
 | **Task** | m1-013 |
 | **Date** | 2026-10-20 |
-| **Status** | **Proposal, awaiting architectural review.** Nothing in §3–§7 is implemented. Because it adds page types, piece types and global fields, the agent recommends recording the approved version as **ADR-0003** (D-CONTENT-8). |
+| **Status** | Proposal (m1-013). **Update 2026-10-20 (m1-014):** the owner approved the foundation (D-CONTENT-8). It is recorded as [ADR-0003](../architecture/decisions/ADR-0003-corporate-content-model.md) and built as described in [§0](#0-implementation-status-m1-014). ADR-0003 is authoritative where it differs from this proposal. §5's SEO group, the widgets in §6 and the dependencies in §7 are **not** implemented. |
 | **Constraints** | [ADR-0001](../architecture/decisions/ADR-0001-cms-platform-and-starter.md) (Community Edition only) · [ADR-0002](../architecture/decisions/ADR-0002-database-strategy.md) (Apostrophe-native data access; database-agnostic; **no production database is selected, PostgreSQL is development and testing only**) · [AGENTS.md](../../AGENTS.md) conventions (`assurer-` prefix, JSX templates, `lib/link.js`, `lib/area.js`) |
 | **Related** | [Inventory](./wordpress-site-inventory.md) · [Information architecture](./corporate-information-architecture.md) · [Editorial and design requirements](./editorial-and-design-requirements.md) · [SEO plan](./seo-and-migration-plan.md) |
+
+## 0. Implementation status (m1-014)
+
+Built in m1-014 ([report](../engineering/reports/2026/10/2026-10-20-m1-014-content-model-foundation.report.md)). The details are in ADR-0003.
+
+| Proposal item | As built | Difference and reason |
+|---|---|---|
+| `assurer-division-page` | `intro`, `_organizations`, `main`; child category pages listed automatically in tree order | No `_categories` relationship: the page tree is the single source. No SEO fields (CA-3) |
+| `assurer-product-category-page` | `summary`, `_heroImage`, `intro`, `main`; `_products` is a **reverse** relationship | The product owns its category links (`_categories`), so a product has one source of truth. No `_documents` yet (downloads, CA-2) |
+| `assurer-product` | `displayTitle`, `summary`, `description` area, `_categories`, `_image`, `_gallery`, `displayOrder` | No `botanicalName` until real data needs it |
+| `assurer-organization` | `shortDescription`, `_logo`, `_parentOrganization`, `websiteUrl` (http/https only), `_locations` (reverse), `displayOrder` | No `shortName`, `city`/`country`, `role` or `body` area yet: unverified facts are not modelled ahead of the owner's data (D-CONTENT-2) |
+| `assurer-person` | `title` (full name), `jobTitle`, `_organization`, `_photo`, `bio`, `displayOrder` | **No** `showContact`/`publicEmail`/`publicPhone`, and no `group` select. Privacy by schema until D-CONTENT-4 |
+| `assurer-location` | `city`, `country`, structured `address`, `_organization`, `showContact` (off), `publicPhone`, `publicEmail`, `displayOrder` | No `kind` or `mapUrl` yet |
+| Global settings | Contact (email, phone, address), footer (text, copyright name, `_footerLocations`, social links), header button (`linkFields()`) | No organisation or SEO-defaults groups, no messaging channels, no quick links: they wait for owner data and CA-3 |
+| `hideInNav` | Core's existing `orphan` field ("Hide in Navigation") | No new field needed |
+| `@apostrophecms/file` fields, the 8 widgets, SEO, sitemap, redirects | Not built | CA-2, CA-3 |
 
 ## 1. What exists today (verified in the code on 2026-10-20)
 

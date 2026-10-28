@@ -1,0 +1,405 @@
+// Corporate content model styles (m1-014): two-level main menu, footer from
+// Global Content, division and product category pages. Placeholder theme
+// only; brand tokens arrive with the brand assets (D-CONTENT-12).
+
+$nav-desktop: 1024px;
+
+.assurer-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.assurer-skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: var(--assurer-navy);
+  color: #fff;
+  transform: translateY(-200%);
+
+  &:focus {
+    transform: none;
+  }
+}
+
+.assurer-main:focus {
+  outline: none;
+}
+
+// Visible focus for every interactive element in the chrome.
+.assurer-header,
+.assurer-footer,
+.assurer-main {
+  a:focus-visible,
+  button:focus-visible {
+    outline: 3px solid var(--assurer-accent);
+    outline-offset: 2px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Header and main menu
+// ---------------------------------------------------------------------------
+
+.assurer-header {
+  position: relative;
+}
+
+.assurer-nav {
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.assurer-nav__menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 20px;
+}
+
+.assurer-nav__link,
+.assurer-nav__sublink {
+  display: inline-block;
+  padding: 10px 4px;
+  color: var(--assurer-navy);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+
+  &:visited { color: var(--assurer-navy); }
+  &:hover { text-decoration: underline; }
+
+  &[aria-current="page"],
+  &.is-current-branch {
+    font-weight: 700;
+  }
+
+  &[aria-current="page"] {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+.assurer-nav__submenu {
+  padding-left: 16px !important;
+}
+
+.assurer-nav__toggle,
+.assurer-nav__expand {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--assurer-navy);
+  font: inherit;
+  cursor: pointer;
+}
+
+.assurer-nav__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-color: #c3cdd6;
+  font-weight: 600;
+}
+
+// Three-bar icon, drawn with borders so it needs no image or font.
+.assurer-nav__toggle-icon {
+  position: relative;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+  }
+
+  &::before { top: -6px; }
+  &::after { top: 6px; }
+}
+
+.assurer-nav__toggle[aria-expanded="true"] .assurer-nav__toggle-icon {
+  background: transparent;
+
+  &::before { top: 0; transform: rotate(45deg); }
+  &::after { top: 0; transform: rotate(-45deg); }
+}
+
+.assurer-nav__expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  vertical-align: middle;
+
+  // Chevron
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+  }
+
+  &[aria-expanded="true"]::before {
+    margin-top: 4px;
+    transform: rotate(-135deg);
+  }
+}
+
+.assurer-nav__item--cta {
+  margin-left: 8px;
+}
+
+// With JavaScript: closed submenus are hidden.
+.assurer-nav--enhanced {
+  .assurer-nav__submenu {
+    display: none;
+  }
+
+  .assurer-nav__item.is-open > .assurer-nav__submenu {
+    display: block;
+  }
+}
+
+// Mobile and tablet: the menu is a panel under the header, opened by the
+// Menu button; submenus open as an accordion inside it.
+@media (max-width: #{$nav-desktop - 1px}) {
+  .assurer-nav--enhanced {
+    .assurer-nav__menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      left: 0;
+      z-index: 50;
+      flex-direction: column;
+      align-items: stretch;
+      max-height: calc(100vh - 120px);
+      padding: 8px 16px 16px;
+      border-top: 1px solid #dde3e8;
+      background: #fff;
+      box-shadow: 0 12px 24px rgba(11, 37, 69, 0.15);
+      overflow-y: auto;
+    }
+
+    &.is-open .assurer-nav__menu {
+      display: flex;
+    }
+
+    .assurer-nav__item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #eef1f4;
+    }
+
+    .assurer-nav__link {
+      flex: 1 1 auto;
+      min-height: 44px;
+      box-sizing: border-box;
+    }
+
+    .assurer-nav__submenu {
+      flex-basis: 100%;
+      padding-bottom: 8px !important;
+    }
+
+    .assurer-nav__sublink {
+      display: block;
+      min-height: 44px;
+      box-sizing: border-box;
+    }
+
+    .assurer-nav__item--cta {
+      margin: 12px 0 0;
+      border-bottom: 0;
+    }
+  }
+}
+
+@media (min-width: $nav-desktop) {
+  .assurer-nav__toggle {
+    display: none !important;
+  }
+
+  .assurer-nav__item--parent {
+    position: relative;
+  }
+
+  .assurer-nav__expand {
+    width: 28px;
+    height: 36px;
+    margin-left: -4px;
+  }
+
+  .assurer-nav--enhanced {
+    .assurer-nav__submenu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 50;
+      min-width: 240px;
+      padding: 8px 0 !important;
+      border: 1px solid #dde3e8;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 12px 24px rgba(11, 37, 69, 0.15);
+    }
+
+    .assurer-nav__sublink {
+      display: block;
+      padding: 10px 16px;
+    }
+  }
+}
+
+// Hover opens submenus only where there is a real pointer.
+@media (min-width: $nav-desktop) and (hover: hover) {
+  .assurer-nav--enhanced .assurer-nav__item--parent:hover > .assurer-nav__submenu {
+    display: block;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Footer
+// ---------------------------------------------------------------------------
+
+.assurer-footer__contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 24px;
+  margin-bottom: 12px;
+  font-style: normal;
+}
+
+.assurer-footer__address {
+  white-space: pre-line;
+}
+
+.assurer-footer__locations,
+.assurer-footer__social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.assurer-footer a {
+  display: inline-block;
+  padding: 4px 0;
+  color: inherit;
+}
+
+// ---------------------------------------------------------------------------
+// Division and product category pages
+// ---------------------------------------------------------------------------
+
+.assurer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  margin: 24px 0 48px;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .assurer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .assurer-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.assurer-grid > .assurer-card {
+  position: relative;
+}
+
+// The whole card is clickable through its heading link.
+.assurer-card__stretched {
+  color: inherit;
+  text-decoration: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  &:visited { color: inherit; }
+  &:hover { text-decoration: underline; }
+}
+
+.assurer-category__hero img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  margin-bottom: 24px;
+  border-radius: var(--assurer-radius);
+  object-fit: cover;
+}
+
+.assurer-category__summary {
+  max-width: 720px;
+  font-size: 1.125rem;
+}
+
+.assurer-org-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  margin: 16px 0 48px;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .assurer-org-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.assurer-org {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.assurer-org__logo {
+  flex: 0 0 auto;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.assurer-org__name {
+  margin: 0 0 4px;
+  text-align: left;
+}
