@@ -166,6 +166,10 @@ const homeHtml = await home.text();
 const visitor = cookiesOf(home);
 const formId = homeHtml.match(/data-apos-form-form="([^"]+)"/)?.[1];
 check('home page renders the contact form', home.status === 200 && Boolean(formId));
+// Spam guard (m1-019, modules/assurer-forms/lib/guard.js): every submission
+// carries the page's fill token, sent after the minimum fill time.
+const fillToken = homeHtml.match(/value="([^"]+)" data-assurer-form-fill/)?.[1];
+check('form carries a fill token', Boolean(fillToken));
 
 const valid = (marker, extra = {}) => ({
   fullname: 'Form Ops Test (demo)',
@@ -183,6 +187,7 @@ async function submit(data, {
   const body = new FormData();
   body.append('data', raw ?? JSON.stringify({
     _id: formId,
+    _assurerFill: fillToken,
     ...data
   }));
   const headers = withCookie ? { cookie: cookieHeader(visitor) } : {};
@@ -280,12 +285,31 @@ const mailFor = id => id && sink.messages.find(m => m.raw.includes(id));
 
 const countRows = async () => (await exportCsv()).rows.length - 1;
 
+// ---- spam guard (m1-019) --------------------------------------------------
+
+const guardCount = await countRows();
+let r = await submit(valid(`fast-${run}`));
+check('submission within the minimum fill time → 400, not stored', r.status === 400 && !r.stored, String(r.status));
+await sleep(3200);
+r = await submit(valid(`notoken-${run}`, { _assurerFill: undefined }));
+check('submission without a fill token → 400', r.status === 400 && !r.stored, String(r.status));
+r = await submit(valid(`forged-${run}`, { _assurerFill: `${Date.now() - 60000}.${'A'.repeat(43)}` }));
+check('submission with a forged fill token → 400', r.status === 400 && !r.stored, String(r.status));
+r = await submit(valid(`trap-${run}`, { _assurerWebsite: 'https://spam.example' }));
+check('submission with the honeypot filled → 400 with a visible message', r.status === 400 &&
+  r.json?.data?.formErrors?.[0]?.global === true, String(r.status));
+check('guard rejections stored nothing', await countRows() === guardCount);
+r = await submit({ _assurerWebsite: 'x' });
+check('missing fields are reported before the spam guard', r.status === 400 &&
+  r.json?.data?.formErrors?.some(e => e.field === 'email'), String(r.status));
+await task([ 'assurer-security:clear-form-rate-limit' ]);
+
 // ---- valid submission and notification -----------------------------------
 
 const before = await countRows();
 const key1 = `test-${randomBytes(12).toString('hex')}`;
 const marker1 = `m1-${run}`;
-let r = await submit(valid(marker1), { key: key1 });
+r = await submit(valid(marker1), { key: key1 });
 check('valid submission accepted (200 with X-Assurer-Submission: stored)', r.status === 200 && r.stored, String(r.status));
 check('valid submission stored once', await countRows() === before + 1);
 const row1 = await findRow(marker1);

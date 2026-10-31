@@ -27,11 +27,16 @@
 // Staff access: /assurer/form-submissions (paginated) and its CSV export, for
 // users who may manage user accounts (the admin role) only. Everyone else,
 // including editors and anonymous visitors, gets 404.
+//
+// Spam guard (m1-019, D-FORM-3): a honeypot field and a minimum fill time,
+// checked after field validation and before storage (lib/guard.js). The
+// form widget template renders the fill token with `fillToken()`.
 
 import {
   parseRetentionDays, readNotificationEnv, readRetentionEnv
 } from './lib/config.js';
 import { buildNotification, csvRow } from './lib/format.js';
+import { checkSubmission, issueFillToken } from './lib/guard.js';
 
 const SUBMIT_URL = '/api/v1/@apostrophecms/form/submit';
 const PAGE_URL = '/assurer/form-submissions';
@@ -52,7 +57,12 @@ const PENDING_GRACE_MS = 5 * 60 * 1000;
 const FORM_ID = /^[A-Za-z0-9:_-]{1,100}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+const GUARD_MESSAGE = 'Your message was not sent. Please wait a few seconds, check your ' +
+  'entries and try again. If this keeps happening, reload the page.';
+
 const notification = readNotificationEnv();
+// Checked at startup by modules/@apostrophecms/express.
+const guardSecret = process.env.APOS_SESSION_SECRET;
 const approvedRetentionDays = readRetentionEnv();
 
 function submissionKey(req) {
@@ -87,6 +97,27 @@ export default {
   handlers(self) {
     return {
       '@apostrophecms/form:beforeSaveSubmission': {
+        // Runs after upstream field validation, so a person who left out a
+        // field sees the field errors first. Throwing here stops the insert.
+        guardSubmission(req) {
+          let input;
+          try {
+            input = JSON.parse(req.body.data);
+          } catch (e) {
+            input = null;
+          }
+          const reason = checkSubmission(input, guardSecret);
+          if (reason) {
+            self.logInfo(req, 'submission-rejected', { reason });
+            throw self.apos.error('invalid', {
+              formErrors: [ {
+                global: true,
+                error: 'invalid',
+                message: GUARD_MESSAGE
+              } ]
+            });
+          }
+        },
         // Give the submission a known ID before it is inserted, so it can be
         // referenced in the notification and updated afterwards.
         prepareSubmission(req, { submission }) {
@@ -342,6 +373,10 @@ export default {
   },
   methods(self) {
     return {
+      // A new token for each rendered form (lib/guard.js).
+      fillToken() {
+        return issueFillToken(guardSecret);
+      },
       collection() {
         return self.apos.modules['@apostrophecms/form'].db;
       },

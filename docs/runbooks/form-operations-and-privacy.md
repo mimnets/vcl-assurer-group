@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Status** | Draft. Verified locally with a disposable SMTP sink (m1-012). Real mail delivery is **NOT VERIFIED**: no provider or credentials exist yet (D-M0-3). Retention deletion is implemented, but **not enabled**: no period is approved (D-FORM-2). |
-| **Code** | `modules/assurer-forms/` (notifications, staff page, export, tasks) · `modules/@apostrophecms/email/` (transport from env) · `modules/@apostrophecms/form/` (confirmation email removed) · `modules/@apostrophecms/form-widget/ui/src/index.js` (browser error handling, D-SEC-3) |
+| **Code** | `modules/assurer-forms/` (notifications, staff page, export, tasks) · `modules/@apostrophecms/email/` (transport from env) · `modules/@apostrophecms/form/` (confirmation email removed) · `modules/@apostrophecms/form-widget/ui/src/index.js` (browser error handling, D-SEC-3) · `modules/@apostrophecms/form-widget/views/widget.jsx` and `modules/assurer-forms/lib/guard.js` (spam guard, privacy notice; m1-019) |
 | **Tests** | `npm run test:unit` (`scripts/form-ops.test.mjs`) · `npm run test:ci` (form-operations suite with SMTP sink) · `npm run test:forms` (against a running server) |
 | **Related** | [security configuration](./security-configuration.md) (rate limit, headers) · [backup and restore](./database-backup-and-restore.md) · [m1-012 report](../engineering/reports/2026/10/2026-10-20-m1-012-form-operations-and-privacy.report.md) |
 
@@ -212,9 +212,18 @@ Until a dedicated tool exists (D-FORM-5), as an administrator:
 - per-IP limit of 10 attempts per 15 minutes (m1-011);
 - server-side validation and size limits;
 - no file uploads;
-- the replay key (section 1) stops accidental duplicates, but not deliberate ones.
+- the replay key (section 1) stops accidental duplicates, but not deliberate ones;
+- **spam guard (m1-019):** a hidden honeypot field and a minimum fill time of 3 seconds, checked
+  on the server after field validation (`modules/assurer-forms/lib/guard.js`). The page carries a
+  signed fill token (HMAC keyed from `APOS_SESSION_SECRET`). A rejected request gets 400 and
+  "Your message was not sent. Please wait a few seconds…"; nothing is stored, and the log records
+  `submission-rejected` with a reason code only (`honeypot`, `token-missing`, `token-invalid`,
+  `too-fast`). Rotating the session secret invalidates forms already open: visitors reload;
+- **no reCAPTCHA (m1-019):** Google reCAPTCHA is removed from the form editor, Global Content,
+  the widget and the server check.
 
-**Gaps:** there is **no** honeypot (upstream has none) and no bot challenge. Distributed spam
+**Gaps:** there is no bot challenge; a bot that waits 3 seconds and ignores the honeypot gets
+through. Distributed spam
 from many IP addresses is not stopped.
 
 | Option | License / cost | Privacy | Accessibility | Fit |
@@ -226,7 +235,7 @@ from many IP addresses is not stopped.
 | hCaptcha / Cloudflare Turnstile | Free tiers; external services | Third-party processing | Challenges can be hard for some users (hCaptcha) | Only with separate approval, if self-hosted options fail |
 | Friendly Captcha | Paid for commercial use | EU-hosted service | No puzzle | Paid: needs separate approval |
 
-**Recommendation:** for the initial deployment, keep the m1-011 rate limit, add the honeypot
+**Recommendation** (m1-012; the honeypot and fill-time step was done in m1-019)**:** for the initial deployment, keep the m1-011 rate limit, add the honeypot
 and fill-time check as a small follow-up task, and add a per-IP limit at the reverse proxy
 (security-configuration runbook). Watch the volume. If spam gets through, propose ALTCHA. Do
 not add any external CAPTCHA provider without separate approval.
@@ -235,6 +244,7 @@ not add any external CAPTCHA provider without separate approval.
 
 | Symptom | Check |
 |---|---|
+| Visitors report "Please wait a few seconds…" | Spam guard (§7). Log `submission-rejected`: `too-fast` (autofill and instant submit; sending again works), `token-missing` (cached page from before m1-019, or a script posting directly), `honeypot` (a browser extension filling hidden fields) |
 | App will not start: `Form configuration: …` | The message names the variable. Fix it in `.env` or the secret store |
 | Status `failed (EAUTH 535)` | Wrong SMTP credentials. Rotate them in the secret store, restart, then run the retry task |
 | Status `failed (ESOCKET)` / `ECONNECTION` / `ETIMEDOUT` | Network, port or TLS problem to the SMTP host |
@@ -248,3 +258,21 @@ Unset the `APOS_SMTP_*` variables to stop notifications; storage is unaffected. 
 m1-012 commit removes the module, the widget override and the email configuration. Stored
 submissions keep the extra `notification` field, which upstream ignores. No migration is
 involved.
+
+Reverting the m1-019 commit removes the spam guard, the privacy fields and links, and the
+reCAPTCHA removal. The `_privacyPage` and `formPrivacyText` values stay in the Global document,
+unused. No migration is involved.
+
+## 10. Privacy notice link (m1-019)
+
+The privacy notice is an ordinary page. Its text comes from the business owner and the DPO; the
+code supplies only the links.
+
+1. Create the page (for example `/privacy`) with the approved text, and publish it.
+2. Global Content → **Privacy** → "Privacy notice page": choose it with **Browse Pages** (the
+   search box does not offer a draft-only page). Optionally add one or two DPO-approved sentences
+   in "Text before the privacy link on forms". Update.
+3. Visitors then see a "Privacy notice" link in the footer and, under every contact form, the text
+   and the link above the submit button.
+
+Nothing is shown while no page is chosen, or while the chosen page is unpublished or archived.

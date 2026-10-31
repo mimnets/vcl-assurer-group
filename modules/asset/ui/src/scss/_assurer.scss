@@ -364,6 +364,22 @@ body {
   font-size: 14px;
 }
 
+// Spam-guard honeypot (views/widget.jsx of form-widget): off screen rather
+// than display: none, which some bots skip; aria-hidden and tabindex="-1"
+// keep it away from people.
+.assurer-form__trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.assurer-form__privacy {
+  margin: 16px 0 0;
+  font-size: 14px;
+}
+
 .assurer-form__submit {
   margin-top: 16px;
   padding: 12px 28px;

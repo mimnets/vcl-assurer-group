@@ -101,6 +101,28 @@ export default {
         def: false
       },
       ...linkFields({ showHeaderCta: true }),
+      // Privacy (m1-019). The notice itself is a normal page whose text comes
+      // from the owner and the DPO; nothing is linked until one is chosen.
+      _privacyPage: {
+        type: 'relationship',
+        label: 'Privacy notice page',
+        help: 'Linked in the footer and under every contact form. Only a published page appears.',
+        withType: '@apostrophecms/any-page-type',
+        max: 1,
+        builders: {
+          project: {
+            title: 1,
+            _url: 1
+          }
+        }
+      },
+      formPrivacyText: {
+        type: 'string',
+        textarea: true,
+        label: 'Text before the privacy link on forms',
+        help: 'Optional. One or two sentences approved by the DPO, e.g. what the details are used for. Shown only when a privacy notice page is chosen.',
+        max: 300
+      },
       // SEO (m1-018). These join the "SEO" tab of @apostrophecms/seo.
       seoTitleSuffix: {
         type: 'string',
@@ -135,6 +157,10 @@ export default {
       navigation: {
         label: 'Navigation',
         fields: [ 'showHeaderCta', 'linkText', 'linkType', '_linkPage', 'linkUrl' ]
+      },
+      privacy: {
+        label: 'Privacy',
+        fields: [ '_privacyPage', 'formPrivacyText' ]
       }
     }
   },
@@ -161,6 +187,12 @@ export default {
     return {
       beforeSave: {
         rejectNonWebUrls: rejectNonWebUrls(self, [ 'socialLinks.url', 'linkUrl' ])
+      },
+      // @apostrophecms/form adds Google reCAPTCHA settings here under the same
+      // handler name. reCAPTCHA sends visitor data to Google, so it is not
+      // offered (m1-019, D-FORM-3); the spam guard is in modules/assurer-forms.
+      'apostrophe:modulesRegistered': {
+        addFormRecaptchaFields() {}
       }
     };
   }

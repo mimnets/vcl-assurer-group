@@ -11,6 +11,9 @@ import {
 import {
   buildNotification, csvCell, csvRow, headerText
 } from '../modules/assurer-forms/lib/format.js';
+import {
+  HONEYPOT_FIELD, MIN_FILL_MS, TOKEN_FIELD, checkSubmission, issueFillToken
+} from '../modules/assurer-forms/lib/guard.js';
 
 const SMTP = {
   APOS_SMTP_HOST: 'smtp.example.com',
@@ -215,4 +218,51 @@ test('upstream form widget player is the version the override is based on', asyn
   const file = new URL('../node_modules/@apostrophecms/form/modules/@apostrophecms/form-widget/ui/src/index.js', import.meta.url);
   const hash = createHash('sha256').update(await readFile(file)).digest('hex');
   assert.equal(hash, '80b698d8d876a99da4fb41527e4de8fcf448cc37f752e0ca6109125e0a81bf7b');
+});
+
+// ---- spam guard (m1-019) -------------------------------------------------
+
+const SECRET = 'x'.repeat(32);
+const T0 = 1798700000000;
+const filled = (extra = {}) => ({
+  [TOKEN_FIELD]: issueFillToken(SECRET, T0),
+  ...extra
+});
+
+test('a signed token older than the minimum fill time passes', () => {
+  assert.equal(checkSubmission(filled(), SECRET, T0 + MIN_FILL_MS), null);
+  assert.equal(checkSubmission(filled({ [HONEYPOT_FIELD]: '' }), SECRET, T0 + 86400000), null);
+});
+
+test('a submission within the minimum fill time is rejected', () => {
+  assert.equal(checkSubmission(filled(), SECRET, T0 + MIN_FILL_MS - 1), 'too-fast');
+});
+
+test('a filled honeypot is rejected, whatever its type', () => {
+  for (const value of [ 'x', ' ', 0, false, [] ]) {
+    assert.equal(checkSubmission(filled({ [HONEYPOT_FIELD]: value }), SECRET, T0 + 5000), 'honeypot');
+  }
+});
+
+test('missing, malformed, forged and future tokens are rejected', () => {
+  const now = T0 + 5000;
+  assert.equal(checkSubmission({}, SECRET, now), 'token-missing');
+  assert.equal(checkSubmission(null, SECRET, now), 'token-missing');
+  assert.equal(checkSubmission({ [TOKEN_FIELD]: 12345 }, SECRET, now), 'token-missing');
+  assert.equal(checkSubmission({ [TOKEN_FIELD]: `${T0}.short` }, SECRET, now), 'token-missing');
+  const [ , signature ] = issueFillToken(SECRET, T0).split('.');
+  // An older time with the signature of another time.
+  assert.equal(checkSubmission({ [TOKEN_FIELD]: `${T0 - 60000}.${signature}` }, SECRET, now), 'token-invalid');
+  assert.equal(checkSubmission(filled(), 'y'.repeat(32), now), 'token-invalid');
+  const future = issueFillToken(SECRET, now + 120000);
+  assert.equal(checkSubmission({ [TOKEN_FIELD]: future }, SECRET, now), 'token-invalid');
+});
+
+test('the browser player sends the same field names as the guard', async () => {
+  const player = await readFile(new URL('../modules/@apostrophecms/form-widget/ui/src/index.js', import.meta.url), 'utf8');
+  const template = await readFile(new URL('../modules/@apostrophecms/form-widget/views/widget.jsx', import.meta.url), 'utf8');
+  for (const source of [ player, template ]) {
+    assert.ok(source.includes(`'${HONEYPOT_FIELD}'`) && source.includes(`'${TOKEN_FIELD}'`));
+  }
+  assert.ok(!/from '[^']*recaptcha/.test(player), 'upstream recaptcha.js must not be imported');
 });

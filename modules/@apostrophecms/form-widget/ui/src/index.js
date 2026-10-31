@@ -2,11 +2,11 @@
 //
 // Apostrophe's supported ui/src override: this file replaces the upstream
 // `ui/src/index.js` of @apostrophecms/form-widget in the asset build, while
-// the upstream `errors.js`, `fields.js` and `recaptcha.js` next to it are
-// still used. Based on @apostrophecms/form 1.5.6. Upstream showed the
-// thank-you message for every failed request that carried no `formErrors`
-// (CSRF 403, 429 from middleware, 500, network errors), so visitors were told
-// that a message which was never stored had been sent.
+// the upstream `errors.js` and `fields.js` next to it are still used.
+// Based on @apostrophecms/form 1.5.6. Upstream showed the thank-you message
+// for every failed request that carried no `formErrors` (CSRF 403, 429 from
+// middleware, 500, network errors), so visitors were told that a message
+// which was never stored had been sent.
 //
 // Changes from upstream, all in `submit()`:
 // - Success is shown only for a 2xx response carrying
@@ -21,6 +21,10 @@
 //   it, which could send the message twice).
 // - After 30 seconds without an answer the visitor is told the outcome is
 //   unknown. A late success still switches to the thank-you message.
+// - m1-019: the spam guard's fill token and honeypot value, rendered by
+//   views/widget.jsx, are sent with the submission (modules/assurer-forms).
+//   reCAPTCHA is not offered, so upstream's `recaptcha.js` (which loads
+//   Google's script) is no longer imported.
 //
 // The upstream file's hash is checked by scripts/form-ops.test.mjs: when an
 // upgrade changes it, compare it with this file before accepting the
@@ -33,9 +37,11 @@
 // import would be resolved next to this project file, where they don't exist.
 import { processErrors } from 'Modules/@apostrophecms/form-widget/errors.js';
 import { collectValues } from 'Modules/@apostrophecms/form-widget/fields.js';
-import enableRecaptcha from 'Modules/@apostrophecms/form-widget/recaptcha.js';
 
 const TIMEOUT_MS = 30000;
+// Must match modules/assurer-forms/lib/guard.js.
+const HONEYPOT_FIELD = '_assurerWebsite';
+const TOKEN_FIELD = '_assurerFill';
 const MESSAGES = {
   csrf: 'Your message was not sent: your session has expired or a security cookie is ' +
     'missing. Please reload the page and try again.',
@@ -90,7 +96,6 @@ export default () => {
 
       form.addEventListener('submit', submit);
 
-      const recaptcha = enableRecaptcha(el);
       // One key per form fill; renewed only after a confirmed success.
       let submissionKey = newSubmissionKey();
 
@@ -145,20 +150,8 @@ export default () => {
         }
 
         input._id = form.getAttribute('data-apos-form-form');
-
-        if (recaptcha) {
-          const recaptchaError = el.querySelector('[data-apos-form-recaptcha-error]');
-
-          try {
-            input.recaptcha = await recaptcha.getToken(el);
-          } catch (error) {
-            // eslint-disable-next-line
-            console.error('reCAPTCHA execution error:', error);
-            apos.util.addClass(recaptchaError, 'apos-form-visible');
-            form.removeAttribute('data-apos-form-busy');
-            return null;
-          }
-        }
+        input[TOKEN_FIELD] = form.querySelector('[data-assurer-form-fill]')?.value || '';
+        input[HONEYPOT_FIELD] = form.querySelector('[data-assurer-form-trap]')?.value || '';
 
         // For resubmissions
         const errorMsg = el.querySelector('[data-apos-form-submit-error]');
