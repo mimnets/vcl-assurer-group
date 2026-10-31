@@ -22,7 +22,11 @@ Built in m1-014 ([report](../engineering/reports/2026/10/2026-10-20-m1-014-conte
 | `assurer-location` | `city`, `country`, structured `address`, `_organization`, `showContact` (off), `publicPhone`, `publicEmail`, `displayOrder` | No `kind` or `mapUrl` yet |
 | Global settings | Contact (email, phone, address), footer (text, copyright name, `_footerLocations`, social links), header button (`linkFields()`) | No organisation or SEO-defaults groups, no messaging channels, no quick links: they wait for owner data and CA-3 |
 | `hideInNav` | Core's existing `orphan` field ("Hide in Navigation") | No new field needed |
-| `@apostrophecms/file` fields, the 8 widgets, SEO, sitemap, redirects | Not built | CA-2, CA-3 |
+| `@apostrophecms/file` fields, the 8 widgets, SEO, sitemap, redirects | Not built | CA-2, CA-3. **Update 2026-10-29 (m1-015):** the 8 widgets are built; see below |
+
+### m1-015 update: the eight widgets (CA-2)
+
+Built in m1-015 ([report](../engineering/reports/2026/10/2026-10-29-m1-015-listing-and-section-widgets.report.md), [ADR-0003 status note](../architecture/decisions/ADR-0003-corporate-content-model.md#status-note-m1-015-2026-10-29-ca-2-widgets-built)). Differences from §6: people have no `group` filter (offered: hand-picked · of one organization); locations have no "by kind" mode (offered: all · of one organization · hand-picked); the product list's category mode takes a chosen category page, or the current one; downloads use core file pieces and tags, with no file-piece schema change. Section intros are a rich-text area (H2 and paragraph) on every widget.
 
 ## 1. What exists today (verified in the code on 2026-10-20)
 

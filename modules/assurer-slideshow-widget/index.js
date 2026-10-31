@@ -1,6 +1,7 @@
 // Image slideshow. Each slide is an image from the media library plus an
 // optional caption. Slides are reordered by dragging them in the widget
 // editor. Client behaviour lives in ui/src/index.js.
+import { requireAltText } from '../../lib/alt-text.js';
 
 export default {
   extend: '@apostrophecms/widget-type',
@@ -54,5 +55,12 @@ export default {
         }
       }
     }
+  },
+  // Slide images are informative: each needs alt text (m1-015).
+  extendMethods(self) {
+    return {
+      sanitize: requireAltText(self, 'slides', widget =>
+        (widget.slides || []).flatMap(slide => slide._image || []))
+    };
   }
 };

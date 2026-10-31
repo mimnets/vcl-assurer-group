@@ -9,6 +9,9 @@
 //
 // One product is deliberately left unpublished so draft isolation can be
 // checked on the demo category page.
+//
+// m1-015 adds a demo file tag and file, and a "Demo Section Widgets" page
+// with one of each CA-2 widget. Its figures are labelled as demo figures.
 
 export const DEMO = {
   organizations: [
@@ -107,6 +110,28 @@ export const DEMO = {
       publish: false
     }
   ],
+  fileTag: 'Demo downloads',
+  files: [
+    {
+      title: 'Demo brochure (fictional)',
+      description: 'Placeholder PDF for demonstration. Not a real company document.',
+      file: 'demo-brochure.pdf'
+    }
+  ],
+  widgetsPage: {
+    title: 'Demo Section Widgets',
+    slug: '/demo-widgets',
+    features: [
+      [ 'Demo service one', 'Placeholder text for a fictional service (demo).', 'home' ],
+      [ 'Demo service two', 'Placeholder text for a second fictional service (demo).', 'motor' ],
+      [ 'Demo service three', 'Placeholder text for a third fictional service (demo).', 'business' ]
+    ],
+    stats: [
+      [ '120+', 'Demo figure one', 'Demo figure, not a real statistic' ],
+      [ '$4 Mn', 'Demo figure two', 'Demo figure, not a real statistic' ],
+      [ '9', 'Demo figure three', 'Demo figure, not a real statistic' ]
+    ]
+  },
   global: {
     footerText: 'Demo footer text: fictional placeholder, not company information.',
     contactEmail: 'info@example.com',
@@ -119,7 +144,9 @@ const GLOBAL_FIELDS = [
   'footerLocationsIds', 'socialLinks'
 ];
 
-export async function seedCorporate(self, images) {
+// `images` maps the demo image keys to image pieces; `filePath(name)`
+// resolves a file under demo-content/files.
+export async function seedCorporate(self, images, filePath) {
   const req = self.apos.task.getReq({ mode: 'draft' });
   const created = [];
   const ref = doc => [ doc ];
@@ -135,7 +162,8 @@ export async function seedCorporate(self, images) {
     const doc = manager.newInstance();
     await manager.convert(req, input, doc);
     const draft = await manager.insert(req, doc);
-    if (publish) {
+    // Tags and files publish themselves (core `autopublish`).
+    if (publish && !manager.options.autopublish) {
       await manager.publish(req, draft);
     }
     created.push(`${type}: ${input.title}`);
@@ -209,6 +237,36 @@ export async function seedCorporate(self, images) {
     }, { publish: publish !== false });
   }
 
+  const tag = await ensurePiece('@apostrophecms/file-tag', { title: DEMO.fileTag });
+  for (const { file, ...input } of DEMO.files) {
+    const existing = await self.apos.file.find(req, { title: input.title })
+      .archived(null)
+      .toObject();
+    if (!existing) {
+      const attachment = await self.apos.attachment.insert(req, {
+        name: file,
+        path: filePath(file)
+      });
+      await self.apos.file.insert(req, {
+        ...input,
+        attachment,
+        _tags: [ tag ]
+      });
+      created.push(`@apostrophecms/file: ${input.title}`);
+    }
+  }
+
+  await ensurePage('default-page', home, {
+    title: DEMO.widgetsPage.title,
+    slug: DEMO.widgetsPage.slug,
+    main: widgetsPageArea(self, {
+      images,
+      orgs,
+      categories,
+      tag
+    })
+  });
+
   const global = await self.apos.global.findGlobal(req);
   const untouched = GLOBAL_FIELDS.every(name => {
     const value = global[name];
@@ -226,4 +284,91 @@ export async function seedCorporate(self, images) {
   }
 
   return created;
+}
+
+// One of each CA-2 widget (m1-015), as editor input for `convert`.
+function widgetsPageArea(self, {
+  images, orgs, categories, tag
+}) {
+  const id = () => self.apos.util.generateId();
+  const intro = (heading, text) => ({
+    metaType: 'area',
+    items: [ {
+      _id: id(),
+      metaType: 'widget',
+      type: '@apostrophecms/rich-text',
+      content: `<h2>${heading}</h2><p>${text}</p>`
+    } ]
+  });
+  const widget = (type, fields) => ({
+    _id: id(),
+    metaType: 'widget',
+    type,
+    ...fields
+  });
+  const { features, stats } = DEMO.widgetsPage;
+  return {
+    metaType: 'area',
+    items: [
+      widget('assurer-feature-grid', {
+        intro: intro('Demo feature grid', 'Fictional services, for demonstration only.'),
+        columns: '3',
+        items: features.map(([ title, text, image ]) => ({
+          _id: id(),
+          title,
+          text,
+          _image: [ images[image] ],
+          hasLink: false
+        }))
+      }),
+      widget('assurer-stats', {
+        intro: intro('Demo key figures', 'These are demo figures, not real statistics.'),
+        items: stats.map(([ value, label, note ]) => ({
+          _id: id(),
+          value,
+          label,
+          note
+        }))
+      }),
+      widget('assurer-product-list', {
+        intro: intro('Demo product list', 'Published products of the demo apparel category.'),
+        mode: 'category',
+        _category: [ categories.apparel ],
+        limit: 12,
+        columns: '3'
+      }),
+      widget('assurer-organizations', {
+        intro: intro('Demo organizations', 'All published organizations (fictional).'),
+        mode: 'all',
+        limit: 12,
+        layout: 'cards'
+      }),
+      widget('assurer-people', {
+        intro: intro('Demo people', 'People of the demo holding group (fictional).'),
+        mode: 'organization',
+        _organization: [ orgs.holding ],
+        limit: 12,
+        columns: '3'
+      }),
+      widget('assurer-locations', {
+        intro: intro('Demo locations', 'All published locations (fictional).'),
+        mode: 'all',
+        limit: 12,
+        showAddress: true,
+        columns: '3'
+      }),
+      widget('assurer-downloads', {
+        intro: intro('Demo downloads', 'Files tagged "Demo downloads".'),
+        mode: 'tag',
+        _tags: [ tag ],
+        limit: 12
+      }),
+      widget('assurer-gallery', {
+        intro: intro('Demo gallery', 'Placeholder images; select one to open it larger.'),
+        _images: [ images.home, images.motor, images.business ],
+        captionSource: 'title',
+        columns: '3'
+      })
+    ]
+  };
 }

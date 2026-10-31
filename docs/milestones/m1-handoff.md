@@ -2,12 +2,16 @@
 
 | | |
 |---|---|
-| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); updated 2026-10-20 (`m1-011`); updated 2026-10-20 (`m1-012`); updated 2026-10-20 (`m1-013`); **updated 2026-10-20 (`m1-014`)** |
+| **Prepared** | 2026-10-19 (`m0-006`); updated in `m0-007`; rewritten 2026-10-20 (`m0-008`); updated 2026-10-20 (`m1-009`, `m1-010`); updated 2026-10-20 (`m1-011`); updated 2026-10-20 (`m1-012`); updated 2026-10-20 (`m1-013`); updated 2026-10-20 (`m1-014`); **status note 2026-10-29 (`m1-015`)** |
 | **Milestone 0** | **CLOSED 2026-10-20.** The owner accepted human usability (D-M0-1), and Milestone 1 is approved (D-M1-0). See [closure report §7](./m0-closure-report.md#7-owner-sign-off-human-usability-acceptance-d-m0-1). |
-| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is merged (PR #13, `1978449`; hosted CI green). `m1-012` (form operations) is merged (PR #14, `ad5253b`; hosted CI green). `m1-013` (WS-5 inventory and content architecture) is merged (PR #15, `15ef1a3`; hosted CI green). `m1-014` (CA-1, content model foundation, ADR-0003) is done by the agent and awaits architectural review (D-GIT-13). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
+| **Milestone 1** | In progress. `m1-009` (CI) merged as PR #11 (`d0f4a05`); hosted CI **verified green** in m1-010 (D-CI-1 closed). `m1-010` (PostgreSQL acceptance) done: recommendation B; the owner decided **D-DB-6 = Option B**: PostgreSQL for development and testing only, not staging or production. `m1-011` (security hardening) is merged (PR #13, `1978449`; hosted CI green). `m1-012` (form operations) is merged (PR #14, `ad5253b`; hosted CI green). `m1-013` (WS-5 inventory and content architecture) is merged (PR #15, `15ef1a3`; hosted CI green). `m1-014` (CA-1, content model foundation, ADR-0003) is done by the agent and awaits architectural review (D-GIT-13). **Update (m1-015):** m1-014 is merged (PR #16, `4dc8855`; D-GIT-13 closed). `m1-015` (CA-2) is in progress; see the [m1-015 handoff](./m1-015-handoff.md). [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md). |
 | **Read first** | [AGENTS.md](../../AGENTS.md) (rules, incl. browser testing) · [INDEX](../engineering/INDEX.md) · [m1-014 report](../engineering/reports/2026/10/2026-10-20-m1-014-content-model-foundation.report.md) · [ADR-0003](../architecture/decisions/ADR-0003-corporate-content-model.md) · [m1-013 report](../engineering/reports/2026/10/2026-10-20-m1-013-corporate-content-architecture.report.md) · [content model](../content/apostrophe-content-model.md) · [implementation plan and risks](../content/implementation-plan-and-risks.md) · [m1-012 report](../engineering/reports/2026/10/2026-10-20-m1-012-form-operations-and-privacy.report.md) · [form operations runbook](../runbooks/form-operations-and-privacy.md) · [m1-011 report](../engineering/reports/2026/10/2026-10-20-m1-011-security-hardening.report.md) · [security configuration](../runbooks/security-configuration.md) · [m1-010 report](../engineering/reports/2026/10/2026-10-20-m1-010-postgresql-compatibility-acceptance.report.md) · [m1-009 report](../engineering/reports/2026/10/2026-10-20-m1-009-ci-and-security-scanning.report.md) · [m0-008 report](../engineering/reports/2026/10/2026-10-20-m0-008-milestone-closure-and-browser-policy.report.md) · [decision register](../engineering/decision-register.md) · [M1 plan](./m1-execution-plan.md) · [m1-009 spec](./m1-009-ci-and-security-scanning-spec.md) |
 
 ## Start-of-session checklist (new Claude Code session)
+
+> **m1-015 note:** the checklist below and the "Exact first Milestone 1 task" section describe
+> m1-009 and are kept as history. For the current task use the
+> [m1-015 handoff](./m1-015-handoff.md) (§1 state, §4 phases, §5 gates).
 
 1. Read the documents above. Don't rely on earlier conversations; the repository is the source of truth.
 2. `git fetch origin`, then check the branch, uncommitted changes, and that `origin/main` contains
@@ -67,6 +71,13 @@ addition (including GitHub Actions and gitleaks) needs approval.
 | Editors can change site-wide Global Styles, and can publish and archive | D-M0-11 | Review before staff rollout (M1 role design) |
 | The local backup archives hold secrets and are not encrypted | D-M0-9 | Owner |
 | SQLite: single writer, no replication | S7 | Local only, by design |
+
+## m1-015 status (2026-10-29)
+
+- m1-014 merged as PR #16 (`4dc8855`); D-GIT-13 closed.
+- m1-015 (CA-2, the eight listing and section widgets) runs on
+  `feat/m1-015-listing-and-section-widgets`, from the [m1-015 handoff](./m1-015-handoff.md).
+  Progress and results are in its report (see [INDEX](../engineering/INDEX.md)).
 
 ## m1-014 status (2026-10-20)
 
@@ -262,6 +273,8 @@ addition (including GitHub Actions and gitleaks) needs approval.
 4. Optional, free: turn on Dependency graph and Dependabot alerts (steps in D-GIT-3).
 
 ## Exact first Milestone 1 task
+
+> Historical (m1-009). The current task is m1-015: [m1-015 handoff](./m1-015-handoff.md).
 
 **`m1-009` — GitHub Actions CI, reproducible tests and security scanning.** The full
 specification is in [m1-009-ci-and-security-scanning-spec.md](./m1-009-ci-and-security-scanning-spec.md).

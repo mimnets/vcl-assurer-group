@@ -35,3 +35,6 @@ release-id
 
 # Local test evidence (screenshots may show test data). Never commit.
 /evidence
+
+# Local notes from the vibecode explorer plugin. Never commit.
+/.vibecode

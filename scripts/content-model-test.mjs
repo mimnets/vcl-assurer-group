@@ -12,7 +12,10 @@
 // authorization, field validation (URLs, email, phone, lengths, integers,
 // rich-text sanitization), relationships, draft/published isolation,
 // navigation hiding and ordering, archive and restore, Global Content and
-// duplicate-free demo seeding.
+// duplicate-free demo seeding. m1-015 adds the eight CA-2 section and
+// listing widgets: item limits, required alt text, unsafe links, listing
+// modes, draft/archived records hidden, no person contact details, file
+// type and size, the gallery markup, and persistence after a restart.
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -21,8 +24,11 @@ import { fileURLToPath } from 'node:url';
 const BASE = process.env.BASE_URL || 'http://localhost:3000';
 const VERIFY_ONLY = process.argv.includes('--verify-only');
 const imagesDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../demo-content/images');
+const filesDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../demo-content/files');
 const P = 'm1-014 test';
+const P2 = 'm1-015 test';
 const SLUGS = {
+  widgets: '/m1-015-test-widgets',
   division: '/m1-014-test-division',
   categoryA: '/m1-014-test-division/category-a',
   categoryB: '/m1-014-test-division/category-b',
@@ -479,13 +485,248 @@ await api(tokens.editor, 'POST', `@apostrophecms/global/${g._id}/publish`, {});
 foot = footer((await page('/')).html);
 check('Global Content restored', !foot.includes(FOOTER) && (!originalFooter || foot.includes(originalFooter)));
 
+// --- CA-2 section and listing widgets (m1-015) ------------------------------
+await sectionWidgets();
+
 // --- Existing content unaffected ---------------------------------------------
 home = await page('/');
 check('home page still renders the M0 widgets', home.status === 200 && home.html.includes('assurer-hero') && home.html.includes('data-apos-form-form'));
 
 await finish();
 
+// The eight CA-2 widgets on one page, built and published by the editor
+// through the REST API, then checked as an anonymous visitor.
+async function sectionWidgets() {
+  const id = () => `w${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+  const widget = (type, fields) => ({
+    _id: id(),
+    metaType: 'widget',
+    type,
+    ...fields
+  });
+  const area = (...items) => ({
+    metaType: 'area',
+    items
+  });
+  const item = fields => ({
+    _id: id(),
+    ...fields
+  });
+  const patchMain = (pageDoc, ...items) => ed('PATCH', `@apostrophecms/page/${pageDoc._id}`, { main: area(...items) });
+
+  // A demo file in a new tag, uploaded by the editor.
+  const tag = await api(tokens.editor, 'POST', '@apostrophecms/file-tag', { title: `${P2} tag` });
+  const fd = new FormData();
+  fd.append('file', new Blob([ await readFile(path.join(filesDir, 'demo-brochure.pdf')) ], { type: 'application/pdf' }), 'm1-015-test.pdf');
+  const attachment = await api(tokens.editor, 'POST', '@apostrophecms/attachment/upload', fd, { draft: false });
+  const file = await api(tokens.editor, 'POST', '@apostrophecms/file', {
+    title: `${P2} file`,
+    description: 'Test file description.',
+    attachment,
+    _tags: [ tag ]
+  });
+  check('editor uploads a file with a tag', Boolean(file?.attachment?._id && file.tagsIds?.length === 1));
+  const noAlt = await api(tokens.editor, 'POST', '@apostrophecms/image', {
+    title: `${P2} image without alt`,
+    attachment: await (async () => {
+      const f = new FormData();
+      f.append('file', new Blob([ await readFile(path.join(imagesDir, 'product-home.png')) ], { type: 'image/png' }), 'no-alt.png');
+      return api(tokens.editor, 'POST', '@apostrophecms/attachment/upload', f, { draft: false });
+    })()
+  });
+  const draftProduct = await findOne(tokens.editor, 'assurer-product', `${P} product draft only`);
+  const draftOrgDoc = await findOne(tokens.editor, 'assurer-organization', `${P} org draft`);
+
+  const widgetsPage = await ensurePage('default-page', `${P2} widgets`, SLUGS.widgets, '_home');
+  check('editor creates a page for the section widgets (draft)', widgetsPage?.type === 'default-page');
+
+  // Validation and limits.
+  const features = n => widget('assurer-feature-grid', {
+    columns: '3',
+    items: Array.from({ length: n }, (x, i) => item({
+      title: `Feature ${i}`,
+      hasLink: false
+    }))
+  });
+  r = await patchMain(widgetsPage, features(13));
+  check('feature grid refuses more than 12 items', r.status === 400, String(r.status));
+  r = await patchMain(widgetsPage, widget('assurer-stats', {
+    items: Array.from({ length: 7 }, (x, i) => item({
+      value: String(i),
+      label: `Figure ${i}`
+    }))
+  }));
+  check('key figures refuse more than 6 items', r.status === 400, String(r.status));
+  r = await patchMain(widgetsPage, widget('assurer-gallery', {
+    _images: [ imgA, noAlt ],
+    captionSource: 'none'
+  }));
+  // Core's area handling keeps only the field path in this response; the
+  // widget editor shows the full message (browser checklist).
+  check('gallery refuses an image without alt text', r.status === 400 && JSON.stringify(r.json).includes('0._images'), String(r.status));
+  r = await patchMain(widgetsPage, widget('assurer-feature-grid', {
+    items: [ item({
+      title: 'Feature',
+      _image: [ noAlt ],
+      hasLink: false
+    }) ]
+  }));
+  check('feature grid refuses an image without alt text', r.status === 400, String(r.status));
+  r = await patchMain(widgetsPage, widget('assurer-product-grid', {
+    cards: area(widget('assurer-product-card', {
+      title: 'Card',
+      _image: [ noAlt ]
+    }))
+  }));
+  check('product card refuses an image without alt text', r.status === 400, String(r.status));
+  r = await patchMain(widgetsPage, widget('assurer-slideshow', {
+    slides: [ item({ _image: [ noAlt ] }) ]
+  }));
+  check('slideshow refuses an image without alt text', r.status === 400, String(r.status));
+  r = await patchMain(widgetsPage, widget('assurer-organizations', {
+    mode: 'all',
+    limit: 5000
+  }));
+  check('listing limit capped at 48', r.status === 400 || (r.status === 200 && r.json.main.items[0].limit === 48),
+    `${r.status} ${r.json?.main?.items?.[0]?.limit}`);
+  r = await patchMain(widgetsPage, widget('assurer-stats', {
+    items: [ item({
+      value: 'x'.repeat(500),
+      label: 'Long'
+    }) ]
+  }));
+  check('key figure value capped at 20 characters', capped({
+    status: r.status,
+    json: r.json?.main?.items?.[0]?.items?.[0] || {}
+  }, 'value', 20), String(r.status));
+
+  // The full set.
+  const FEATURE_OK = 'https://example.com/feature-link';
+  r = await patchMain(widgetsPage,
+    widget('assurer-feature-grid', {
+      columns: '2',
+      items: [
+        item({
+          title: `${P2} feature good link`,
+          text: 'Feature text.',
+          _image: [ imgA ],
+          hasLink: true,
+          linkText: 'Read about the feature',
+          linkType: 'url',
+          linkUrl: FEATURE_OK
+        }),
+        item({
+          title: `${P2} feature bad link`,
+          hasLink: true,
+          linkText: 'Bad link',
+          linkType: 'url',
+          linkUrl: 'javascript:alert(3)'
+        })
+      ]
+    }),
+    widget('assurer-stats', {
+      items: [ item({
+        value: '1,700+',
+        label: `${P2} figure`,
+        note: 'Test note'
+      }) ]
+    }),
+    widget('assurer-product-list', {
+      mode: 'category',
+      _category: [ catA ],
+      limit: 12
+    }),
+    widget('assurer-product-list', {
+      mode: 'pick',
+      _products: [ prod2, draftProduct ]
+    }),
+    widget('assurer-organizations', {
+      mode: 'all',
+      layout: 'list',
+      limit: 48
+    }),
+    widget('assurer-organizations', {
+      mode: 'pick',
+      _organizations: [ draftOrgDoc ]
+    }),
+    widget('assurer-people', {
+      mode: 'organization',
+      _organization: [ org ]
+    }),
+    widget('assurer-locations', {
+      mode: 'organization',
+      _organization: [ org ],
+      showAddress: false
+    }),
+    widget('assurer-downloads', {
+      mode: 'tag',
+      _tags: [ tag ]
+    }),
+    widget('assurer-gallery', {
+      _images: [ imgB, imgA ],
+      captionSource: 'title',
+      columns: '3'
+    })
+  );
+  check('editor saves a page with all eight section widgets', r.status === 200 && r.json.main?.items?.length === 10,
+    `${r.status} ${JSON.stringify(r.json).slice(0, 200)}`);
+  const saved = r.json.main?.items || [];
+  check('javascript: link never stored', !JSON.stringify(saved).includes('javascript:'));
+  check('draft widgets page is not public', (await page(SLUGS.widgets)).status === 404);
+
+  await publish('@apostrophecms/page', widgetsPage);
+  let w = await page(SLUGS.widgets);
+  const html = w.html;
+  check('published widgets page renders', w.status === 200 && html.includes(`${P2} feature good link`));
+  check('feature grid: safe link kept, no javascript: link',
+    html.includes(`href="${FEATURE_OK}"`) && !html.includes('javascript:') && !html.includes('>Bad link<'));
+  check('key figures render value and label', html.includes('1,700+') && html.includes(`${P2} figure`));
+  check('product list (category): published products, no draft product',
+    html.includes(`${P} product public name`) && !html.includes('Draft-only test product'));
+  check('product list (picked): published product shown, draft pick hidden',
+    html.includes('Second test product.') && (html.match(/Draft-only test product/g) || []).length === 0);
+  check('organizations (all): published shown, unpublished hidden',
+    html.includes(`${P} org<`) && !html.includes(`${P} org draft`));
+  check('empty listing shows no editor hint to visitors', !html.includes('Visitors do not see this section'));
+  check('people (by organization): person shown without any contact details',
+    html.includes(`${P} person`) && !html.includes('person@example.com') && !html.includes('tel:+15550199'));
+  check('locations: contact shown only as allowed, address hidden on request',
+    html.includes(`${P} location`) && html.includes('href="tel:+15550100"') && !html.includes('1 Test Street'));
+  check('downloads (by tag): title, type and size from the attachment',
+    html.includes(`${P2} file`) && /\(PDF, \d+ B\)/.test(html));
+  const galleryAt = html.indexOf('data-assurer-gallery');
+  check('gallery: ordered images link to the full image, with alt text and captions',
+    galleryAt > -1 && html.indexOf(`${P} image B alt text`, galleryAt) < html.indexOf(`${P} image A alt text`, galleryAt) &&
+    html.includes('data-gallery-link') && html.includes(`>${P} image B</figcaption>`));
+
+  // Unpublished edits stay private; anonymous visitors cannot ask for drafts.
+  const draftItems = JSON.parse(JSON.stringify(saved));
+  draftItems[1].items[0].value = '9,999 draft';
+  await ed('PATCH', `@apostrophecms/page/${widgetsPage._id}`, { main: area(...draftItems) });
+  w = await page(SLUGS.widgets);
+  check('unpublished widget edit hidden from visitors', w.html.includes('1,700+') && !w.html.includes('9,999 draft'));
+  const anonDraft = await page(`${SLUGS.widgets}?aposMode=draft`);
+  check('anonymous ?aposMode=draft gets no draft data', !anonDraft.html.includes('9,999 draft'));
+  await api(tokens.editor, 'POST', `@apostrophecms/page/${widgetsPage._id}/revert-draft-to-published`, {});
+
+  // Archived records drop out of every listing.
+  await ed('PATCH', `assurer-location/${loc._id}`, { archived: true });
+  await ed('PATCH', `@apostrophecms/file/${file._id}`, { archived: true });
+  w = await page(SLUGS.widgets);
+  check('archived location and file disappear from the listings',
+    !w.html.includes(`${P} location`) && !w.html.includes(`${P2} file`));
+  r = await ed('PATCH', `assurer-location/${loc._id}`, { archived: false });
+  await publish('assurer-location', r.json);
+  await ed('PATCH', `@apostrophecms/file/${file._id}`, { archived: false });
+  w = await page(SLUGS.widgets);
+  check('restored location and file reappear', w.html.includes(`${P} location`) && w.html.includes(`${P2} file`));
+}
+
 async function verifyAfterRestart() {
+  const widgets = await page(SLUGS.widgets);
+  check('after restart: section widgets page persisted',
+    widgets.status === 200 && widgets.html.includes(`${P2} feature good link`) &&
+    widgets.html.includes('data-assurer-gallery') && widgets.html.includes(`${P2} file`));
   const cat = await page(SLUGS.categoryA);
   check('after restart: category page and published product persisted',
     cat.status === 200 && cat.html.includes(`${P} product public name`) && cat.html.includes('Second test product.'));

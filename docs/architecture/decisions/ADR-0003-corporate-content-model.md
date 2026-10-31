@@ -163,3 +163,33 @@ Not part of this decision:
   until the owner and DPO decide D-CONTENT-4.
 - **`default-page` with widgets only.** Rejected in m1-013: it cannot guarantee the consistent
   fields that cards and summaries need.
+
+## Status note (m1-015, 2026-10-29): CA-2 widgets built
+
+Recorded by the agent; this note adds to the decision above and changes none of it. Details in
+the [m1-015 report](../../engineering/reports/2026/10/2026-10-29-m1-015-listing-and-section-widgets.report.md).
+
+- **Eight widgets** in `lib/area.js` (page-level `main` areas only): `assurer-feature-grid`,
+  `assurer-stats`, `assurer-product-list`, `assurer-organizations`, `assurer-people`,
+  `assurer-locations`, `assurer-downloads`, `assurer-gallery`. The core file widget is not added.
+- **Feature grid vs product card (the widget part of D-CONTENT-8):** a new widget, as
+  recommended. Product cards stay product-specific; feature items are inline and typed.
+- **Listing modes as built** (§2 differences): product list: a category page (or the current
+  category page when none is chosen) · hand-picked. Organizations: all · hand-picked. People:
+  hand-picked · of one organization (no `group` field). Locations: all · of one organization ·
+  hand-picked (no `kind` field). Downloads: by core file tag · hand-picked. Rule-based modes run
+  request-aware queries (published, non-archived records only for visitors), capped at 48.
+- **Alt text (§7) is now required** for the informative images in project widgets: gallery,
+  feature-grid items, product cards and slideshow slides. The widget refuses to save and names
+  the image; the editor adds alt text in the media library. Core image pieces keep alt text
+  optional. Organization logos and people photos sit next to the name and keep empty alt.
+- **People** render no contact details; **locations** show business contacts only when the
+  location's "Show contact details" is on.
+- **Empty listings** render nothing for visitors; logged-in users see a hint.
+- **Gallery lightbox:** project code (native `<dialog>`), no package; thumbnails are plain links
+  without JavaScript.
+- New labels use the `project:` i18n namespace (`modules/@apostrophecms/i18n`), started here.
+- Core does not enforce `required`/`min` on relationship fields server-side (the editor UI does).
+  An empty gallery or an "of one organization" list without an organization saves through the API
+  and renders nothing.
+

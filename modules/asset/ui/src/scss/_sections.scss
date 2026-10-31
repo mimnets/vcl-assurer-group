@@ -1,0 +1,301 @@
+// Section and listing widgets (m1-015, CA-2). Placeholder theme only; brand
+// tokens arrive with the brand assets (D-CONTENT-12). Builds on `.assurer-grid`,
+// `.assurer-card` and `.assurer-org` from _assurer.scss and _corporate.scss.
+
+.assurer-section {
+  margin: 48px 0;
+}
+
+// Centred, like the product grid's intro (`.assurer-products__intro`).
+.assurer-section__intro {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+// Editor-chosen column counts on wide screens. One column on phones, two on
+// tablets, as `.assurer-grid` already does.
+@media (min-width: 1024px) {
+  .assurer-grid--cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .assurer-grid--cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.assurer-grid > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.assurer-feature .assurer-card__link {
+  align-self: flex-start;
+}
+
+// ---------------------------------------------------------------------------
+// Key figures
+// ---------------------------------------------------------------------------
+
+.assurer-stats__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: 24px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+
+.assurer-stats__item {
+  padding: 24px 16px;
+  border-radius: var(--assurer-radius);
+  background: var(--assurer-light);
+  overflow-wrap: anywhere;
+}
+
+.assurer-stats__value {
+  margin: 0;
+  color: var(--assurer-navy);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.assurer-stats__label {
+  margin: 8px 0 0;
+  font-weight: 600;
+}
+
+.assurer-stats__note {
+  margin: 8px 0 0;
+  font-size: 0.875rem;
+}
+
+// ---------------------------------------------------------------------------
+// Organizations (compact list), people, locations
+// ---------------------------------------------------------------------------
+
+.assurer-compact-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid #d5dde5;
+  }
+}
+
+.assurer-compact-list__name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.assurer-org__website {
+  display: inline-block;
+  padding: 10px 0;
+}
+
+.assurer-person {
+  text-align: center;
+}
+
+.assurer-person__photo {
+  display: block;
+  width: 160px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.assurer-person__name,
+.assurer-location__name {
+  margin: 0 0 4px;
+}
+
+.assurer-person__job,
+.assurer-person__org,
+.assurer-location__org {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.assurer-person__bio {
+  margin: 8px 0 0;
+  text-align: left;
+}
+
+.assurer-location {
+  padding: 20px;
+  border: 1px solid #d5dde5;
+  border-radius: var(--assurer-radius);
+}
+
+.assurer-location__name {
+  text-align: left;
+}
+
+.assurer-location__address {
+  font-style: normal;
+}
+
+.assurer-location__line {
+  display: block;
+}
+
+.assurer-location__contact {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: inline-block;
+    padding: 10px 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Downloads
+// ---------------------------------------------------------------------------
+
+.assurer-download-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assurer-download {
+  padding: 12px 0;
+  border-bottom: 1px solid #d5dde5;
+  overflow-wrap: anywhere;
+}
+
+.assurer-download__link {
+  display: inline-block;
+  padding: 8px 0;
+  font-weight: 600;
+}
+
+.assurer-download__meta {
+  font-weight: 400;
+}
+
+.assurer-download__description {
+  margin: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Gallery and lightbox
+// ---------------------------------------------------------------------------
+
+.assurer-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .assurer-gallery__grid--cols-3,
+  .assurer-gallery__grid--cols-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .assurer-gallery__grid--cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.assurer-gallery__figure {
+  margin: 0;
+}
+
+.assurer-gallery__link {
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+
+  &:focus-visible {
+    outline: 3px solid var(--assurer-accent);
+    outline-offset: 2px;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+}
+
+.assurer-gallery__caption {
+  margin-top: 4px;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.assurer-lightbox {
+  width: min(100vw - 32px, 1200px);
+  max-width: none;
+  max-height: calc(100vh - 32px);
+  padding: 16px;
+  border: 0;
+  border-radius: var(--assurer-radius);
+  background: #111;
+  color: #fff;
+
+  &::backdrop {
+    background: rgb(0 0 0 / 80%);
+  }
+}
+
+.assurer-lightbox__figure {
+  margin: 0;
+  text-align: center;
+}
+
+.assurer-lightbox__image {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 200px);
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.assurer-lightbox__caption {
+  margin-top: 8px;
+}
+
+.assurer-lightbox__counter {
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+.assurer-lightbox__controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+
+  button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid #fff;
+    border-radius: 6px;
+    background: transparent;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: 2px;
+    }
+  }
+}
