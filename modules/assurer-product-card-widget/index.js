@@ -1,5 +1,6 @@
 // A single product card: image, title, editable description and an optional
 // link. Intended for use inside `assurer-product-grid`.
+import { requireAltText } from '../../lib/alt-text.js';
 import { linkFields } from '../../lib/link.js';
 
 export default {
@@ -48,5 +49,11 @@ export default {
       },
       ...linkFields({ hasLink: true })
     }
+  },
+  // The card image is informative: it needs alt text (m1-015).
+  extendMethods(self) {
+    return {
+      sanitize: requireAltText(self, '_image', widget => widget._image || [])
+    };
   }
 };

@@ -76,6 +76,15 @@ apostrophe({
     'assurer-location': {},
     'assurer-division-page': {},
     'assurer-product-category-page': {},
+    // Section and listing widgets (m1-015, CA-2).
+    'assurer-feature-grid-widget': {},
+    'assurer-stats-widget': {},
+    'assurer-product-list-widget': {},
+    'assurer-organizations-widget': {},
+    'assurer-people-widget': {},
+    'assurer-locations-widget': {},
+    'assurer-downloads-widget': {},
+    'assurer-gallery-widget': {},
     'assurer-demo': {},
     // Test-only tasks (CI admin bootstrap); refuse to run outside a
     // temporary SQLite database.

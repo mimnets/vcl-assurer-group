@@ -23,6 +23,10 @@ const imagesDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../../demo-content/images'
 );
+const filesDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../demo-content/files'
+);
 
 const IMAGES = {
   hero: [ 'hero-skyline.png', 'DEMO – Hero background', 'Abstract blue gradient placeholder' ],
@@ -58,7 +62,8 @@ export default {
       },
       'seed-corporate': {
         usage: 'Add fictional demo products, organizations, people, locations, a division ' +
-          'page and category pages (ADR-0003). Adds missing records only.\n' +
+          'page, category pages, a demo file and a page of section widgets (ADR-0003, ' +
+          'm1-015). Adds missing records only.\n' +
           'Usage: node app assurer-demo:seed-corporate [--dev-database]',
         task: () => self.seedCorporate()
       }
@@ -87,7 +92,8 @@ export default {
           const [ file, title, alt ] = IMAGES[key];
           images[key] = await self.ensureImage(req, file, title, alt);
         }
-        const created = await seedCorporate(self, images);
+        const filePath = file => path.join(filesDir, file);
+        const created = await seedCorporate(self, images, filePath);
         self.apos.util.log(created.length
           ? `Corporate demo records created: ${created.length}\n  ${created.join('\n  ')}`
           : 'Corporate demo records already present; nothing changed.');
