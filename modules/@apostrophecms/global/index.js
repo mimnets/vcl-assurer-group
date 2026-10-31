@@ -100,9 +100,30 @@ export default {
         help: 'For example "Contact" linking to the contact page.',
         def: false
       },
-      ...linkFields({ showHeaderCta: true })
+      ...linkFields({ showHeaderCta: true }),
+      // SEO (m1-018). These join the "SEO" tab of @apostrophecms/seo.
+      seoTitleSuffix: {
+        type: 'string',
+        label: 'project:seoTitleSuffix',
+        help: 'project:seoTitleSuffixHelp',
+        max: 60
+      },
+      _seoDefaultImage: {
+        type: 'relationship',
+        label: 'project:seoDefaultImage',
+        help: 'project:seoDefaultImageHelp',
+        withType: '@apostrophecms/image',
+        max: 1
+      }
     },
+    // robots.txt comes from the environment (modules/assurer-seo), and the
+    // site has no search page, so these seo module settings would have no
+    // effect.
+    remove: [ 'robotsTxtSelection', 'robotsAISelective', 'robotsCustomText', 'seoSearchQueryParam' ],
     group: {
+      seo: {
+        fields: [ 'seoTitleSuffix', '_seoDefaultImage' ]
+      },
       contact: {
         label: 'Contact',
         fields: [ 'contactEmail', 'contactPhone', 'contactAddress' ]
@@ -116,6 +137,25 @@ export default {
         fields: [ 'showHeaderCta', 'linkText', 'linkType', '_linkPage', 'linkUrl' ]
       }
     }
+  },
+  extendMethods(self) {
+    return {
+      // The seo module makes "Organization Name" required, which blocks
+      // saving any Global Content until the company's details are entered.
+      // They are not confirmed yet (D-CONTENT-2, D-CONTENT-12), so the name
+      // is optional; without it no Organization JSON-LD is emitted (m1-018).
+      composeSchema(_super) {
+        _super();
+        const org = self.schema.find(field => field.name === 'seoJsonLdOrganization');
+        if (org?.fields?.add?.name) {
+          org.fields.add.name.required = false;
+        }
+        const name = org?.schema?.find(field => field.name === 'name');
+        if (name) {
+          name.required = false;
+        }
+      }
+    };
   },
   handlers(self) {
     return {

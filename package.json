@@ -51,7 +51,10 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@apostrophecms/form": "^1.5.6",
+    "@apostrophecms/redirect": "^1.7.1",
     "@apostrophecms/security-headers": "^1.0.2",
+    "@apostrophecms/seo": "^1.7.1",
+    "@apostrophecms/sitemap": "^1.5.1",
     "@apostrophecms/vite": "^1.2.0",
     "apostrophe": "^4.34.0",
     "cross-env": "^10.1.0",

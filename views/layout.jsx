@@ -11,6 +11,7 @@
 // template arrive as this template's data, so `data.main` is the `main` prop
 // rather than anything belonging to the page document.
 import { linkHref } from '../lib/link.js';
+import { pageTitle } from '../lib/seo-title.js';
 
 // Milestone 0: every page carries this notice so nobody mistakes the proof
 // of concept for the production site.
@@ -172,10 +173,9 @@ function Footer({ global = {} }) {
 export default function (data, { Extend, apos }) {
   // `data.title` is how a page template overrides the title — the JSX
   // equivalent of Nunjucks `{% block title %}`. Templates without a page or
-  // piece in context (notFound.jsx) rely on it.
-  const title = data.title ||
-    (data.piece && data.piece.title) ||
-    (data.page && data.page.title);
+  // piece in context (notFound.jsx) rely on it. lib/seo-title.js adds the SEO
+  // title and the Global Content suffix (m1-018).
+  const title = pageTitle(data);
 
   if (!title) {
     apos.util.log('Looks like you forgot to override the title block in a template that does not have access to an Apostrophe page or piece.');
