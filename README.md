@@ -54,26 +54,29 @@ audit check on every pull request. See [git-and-ci.md](./docs/engineering/git-an
 ## Layout
 
 ```
-.github/workflows/      CI (ci.yml)
-app.js                  module list and app configuration
-lib/                    shared field config and helpers (area.js, link.js, listing.js, …)
-  views/                shared JSX components
-modules/
-  assurer-*/            project modules: pieces, page types, widgets, tasks
-  @apostrophecms/*/     overrides of core and official modules
-  asset/ui/src/         client-side source (Vite): index.js, index.scss, scss/
-  default-page/, nested-*-widget/   kept from the starter kit
-views/layout.jsx        site chrome (header, nav, footer)
-scripts/                test runners and unit tests (*.test.mjs)
-security/               npm audit baseline
-demo-content/           files and images for the "Demo" seed
-public/images/          static site images
-licenses/               third-party licence texts
-docs/                   engineering records, ADRs, content planning, runbooks, milestones
+.github/
+  workflows/            # CI (ci.yml)
+lib/                    # shared field config and helpers (area.js, link.js, listing.js, ...)
+  views/                # shared JSX components
+modules/                # assurer-* project modules; @apostrophecms/* core overrides
+  asset/
+    ui/
+      src/              # client-side source (Vite): index.js, index.scss, scss/
+views/                  # layout.jsx: site chrome (header, nav, footer)
+scripts/                # test runners and unit tests (*.test.mjs)
+security/               # npm audit baseline
+demo-content/           # files and images for the "Demo" seed
+public/
+  images/               # static site images
+licenses/               # third-party licence texts
+docs/                   # engineering records, ADRs, content planning, runbooks, milestones
 ```
 
-Not tracked (git-ignored): `.env`, `data/` (local database), `public/uploads/` (media),
-`apos-build/` and `public/apos-frontend/` (build output), `backups/`, `evidence/`.
+`app.js` holds the module list and app configuration. `default-page` and the `nested-*-widget`
+modules are kept from the starter kit.
+
+Not tracked (git-ignored): `.env`, `data` (local database), `public/uploads` (media),
+`apos-build` and `public/apos-frontend` (build output), `backups`, `evidence`.
 The `docs/` tree is detailed in [STANDARDS.md](./docs/engineering/STANDARDS.md#layout);
 code conventions are in [ARCHITECTURE.md](./ARCHITECTURE.md) and [AGENTS.md](./AGENTS.md).
 

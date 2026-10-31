@@ -22,6 +22,11 @@ A third-party "vibecode explorer" plugin reported no planned folder layout. The 
   STANDARDS.md and to ARCHITECTURE.md / AGENTS.md instead of repeating them.
 - Each folder in the tree was checked against the working tree and `git ls-files`.
 - INDEX: m1-016 row added; next free task ID moved to `m1-017`.
+- Follow-up: the plugin reads a tree line as a folder only when the line ends in `/`, or has a
+  `#` comment after it. The first version used plain-text descriptions, so only backticked prose
+  paths counted, and 7 folders showed as unplanned. The tree now uses `#` comments, and
+  git-ignored folders are named without a trailing slash, so they no longer count as "planned
+  but missing".
 
 No code, configuration, dependency or rule changed.
 
@@ -33,7 +38,8 @@ No code, configuration, dependency or rule changed.
 | `npm run test:unit` | PASS (70/70) |
 | `test:smoke`, `test:workflow`, `test:persistence` | NOT RUN: documentation-only change, no code touched |
 | Browser smoke check of the public site | NOT TESTED: the change does not affect the site; README is not served |
-| Plugin re-run | NOT TESTED by the agent; the owner can re-run it |
+| Plugin re-run (first version, `c100788`) | FAIL, run by the owner: plugin issue "7 folders are not the plan" |
+| Plugin parser on the follow-up version | PASS, agent-executed: the plugin's own `plannedFolders()` / `structureDrift()` against `git ls-files` give no unplanned and no missing folders |
 
 ## Open decisions
 
