@@ -29,8 +29,20 @@ export default {
   // typed. Once an SMTP transport exists, that would let anyone use the site
   // to send mail to arbitrary people. Remove the option from the form editor
   // and replace the handler of the same name, so it cannot run (m1-012).
+  //
+  // Google reCAPTCHA is removed as well: it sends visitor data to Google
+  // (m1-019, D-FORM-3). The per-form switch is gone from the editor, the
+  // Global Content settings are not added (modules/@apostrophecms/global),
+  // the widget template no longer loads Google's script, and the server
+  // check below never contacts Google, even for a form saved with the switch
+  // on before m1-019.
   fields: {
-    remove: [ 'sendConfirmationEmail', 'emailConfirmationField' ]
+    remove: [ 'sendConfirmationEmail', 'emailConfirmationField', 'enableRecaptcha' ]
+  },
+  methods() {
+    return {
+      async checkRecaptcha() {}
+    };
   },
   handlers() {
     return {

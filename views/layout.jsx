@@ -135,6 +135,8 @@ function Footer({ global = {} }) {
   const locations = global._footerLocations || [];
   const social = (global.socialLinks || []).filter(link => link.url);
   const hasContact = global.contactEmail || global.contactPhone || global.contactAddress;
+  // Only a published page is joined for visitors (m1-019).
+  const privacyPage = global._privacyPage?.[0];
   return (
     <footer className="assurer-footer">
       {global.footerText && <p className="assurer-footer__text">{global.footerText}</p>}
@@ -160,6 +162,11 @@ function Footer({ global = {} }) {
             <li><a href={link.url} rel="noopener">{SOCIAL_LABELS[link.network] || link.network}</a></li>
           ))}
         </ul>
+      )}
+      {privacyPage?._url && (
+        <p className="assurer-footer__privacy">
+          <a href={privacyPage._url}>Privacy notice</a>
+        </p>
       )}
       <p className="assurer-footer__legal">
         {global.copyrightName
