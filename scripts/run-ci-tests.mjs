@@ -18,7 +18,9 @@
 // and the SMTP password is a random per-run value the form suite checks for
 // leaks. m1-014 adds a test editor (assurer-test:ensure-editor), runs the
 // corporate demo seed twice (it must add nothing the second time) and runs
-// the content-model suite before and after a restart.
+// the content-model suite before and after a restart. m1-018 adds the SEO
+// suite, seeds the legacy redirects twice while the server is stopped and,
+// after the restart, requests every legacy URL (one 301 hop each).
 // Uses Node built-ins only.
 
 import { spawn } from 'node:child_process';
@@ -71,7 +73,10 @@ const env = {
   APOS_TEST_EDITOR_PASSWORD: editorPassword,
   PORT,
   ADDRESS: '127.0.0.1',
-  BASE_URL
+  BASE_URL,
+  // Absolute page URLs point at this test server (m1-018). Indexing stays
+  // off (APOS_ALLOW_INDEXING unset), as on every non-production site.
+  APOS_BASE_URL: BASE_URL
 };
 
 // A free local port for the SMTP sink that scripts/form-ops-test.mjs runs.
@@ -209,11 +214,17 @@ async function steps() {
     await run('smoke test', [ 'scripts/smoke-test.mjs' ]) &&
     await run('editor workflow test', [ 'scripts/editor-workflow-test.mjs' ]) &&
     await run('content model test', [ 'scripts/content-model-test.mjs' ], { CONTENT_TEST_DISPOSABLE: '1' }) &&
-    await stopServer().then(() => startServer('restart')) &&
+    await run('SEO test', [ 'scripts/seo-test.mjs' ], { SEO_TEST_DISPOSABLE: '1' }) &&
+    await stopServer().then(() => run('seed legacy redirects (assurer-seo:seed-redirects)', [
+      'app', 'assurer-seo:seed-redirects', '--strict'
+    ])) &&
+    await run('seed legacy redirects again (must add nothing)', [ 'app', 'assurer-seo:seed-redirects', '--strict' ]) &&
+    await startServer('restart') &&
     await run('persistence test after restart', [ 'scripts/editor-workflow-test.mjs', '--verify-only' ]) &&
     await run('content model persistence after restart', [ 'scripts/content-model-test.mjs', '--verify-only' ], {
       CONTENT_TEST_DISPOSABLE: '1'
     }) &&
+    await run('legacy redirect map test', [ 'scripts/seo-test.mjs', '--redirects' ], { SEO_TEST_DISPOSABLE: '1' }) &&
     await stopServer().then(() => startServer('forms', formsEnv)) &&
     await run('form operations test', [ 'scripts/form-ops-test.mjs' ], {
       ...formsEnv,

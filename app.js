@@ -1,11 +1,16 @@
 import 'dotenv/config';
 import apostrophe from 'apostrophe';
+import { defaultBaseUrl } from './modules/assurer-seo/lib/config.js';
 
 apostrophe({
   root: import.meta,
   // Used as the default database name and for session cookie naming.
   // The actual database is selected by APOS_DB_URI (see .env.example).
   shortName: 'vcl-assurer-group',
+  // Public site address for absolute URLs (canonicals, sitemap, JSON-LD).
+  // Core replaces it with APOS_BASE_URL when that is set (m1-018; see
+  // modules/assurer-seo/lib/config.js).
+  baseUrl: defaultBaseUrl(process.env),
   modules: {
     // Apostrophe module configuration
     // *******************************
@@ -85,6 +90,13 @@ apostrophe({
     'assurer-locations-widget': {},
     'assurer-downloads-widget': {},
     'assurer-gallery-widget': {},
+    // SEO (m1-018, CA-3; D-CONTENT-10): official SEO fields and JSON-LD,
+    // /sitemap.xml, editor-managed redirects, and the project's robots.txt,
+    // noindex and trailing-slash rules (assurer-seo).
+    '@apostrophecms/seo': {},
+    '@apostrophecms/sitemap': {},
+    '@apostrophecms/redirect': {},
+    'assurer-seo': {},
     'assurer-demo': {},
     // Test-only tasks (CI admin bootstrap); refuse to run outside a
     // temporary SQLite database.

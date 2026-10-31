@@ -409,8 +409,10 @@ await api(tokens.editor, 'POST', `assurer-product/${prod._id}/revert-draft-to-pu
 // --- Navigation ------------------------------------------------------------------
 let home = await page('/');
 let menu = nav(home.html);
+// Page links are absolute when core `baseUrl` is set (m1-018).
+const linksTo = (html, slug) => html.includes(`href="${slug}"`) || html.includes(`href="${BASE}${slug}"`);
 check('menu shows the division with a submenu of its categories',
-  menu.includes(`href="${SLUGS.division}"`) && menu.includes(`href="${SLUGS.categoryA}"`) && menu.includes('assurer-nav__submenu'));
+  linksTo(menu, SLUGS.division) && linksTo(menu, SLUGS.categoryA) && menu.includes('assurer-nav__submenu'));
 const draftPage = await ensurePage('default-page', `${P} draft-only page`, SLUGS.draftPage, division._id);
 home = await page('/');
 check('unpublished page not in the public menu', Boolean(draftPage) && !nav(home.html).includes(SLUGS.draftPage));

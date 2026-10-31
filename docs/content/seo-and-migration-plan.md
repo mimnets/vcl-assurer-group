@@ -5,6 +5,7 @@
 | **Task** | m1-013 |
 | **Date** | 2026-10-20 |
 | **Status** | **Plan only.** No live URL was changed and no sitemap was submitted. Each item is marked **Implemented** (works in the repository today), **Core** (available in installed Apostrophe without new code), or **Planned** (needs work or approval). |
+| **Status note (m1-018, 2026-10-31)** | §2–§6 are now implemented except the `/wp-content/uploads/` file redirects and Product/sub-organization/Person data (CA-5, owner facts) and H1 templates (CA-4). The "Planned" markers below are kept as written in m1-013; see the [m1-018 report](../engineering/reports/2026/10/2026-10-31-m1-018-seo-plumbing.report.md) and the [SEO runbook](../runbooks/seo.md) |
 | **Related** | [Inventory](./wordpress-site-inventory.md) · [Information architecture](./corporate-information-architecture.md) · [Content model](./apostrophe-content-model.md) |
 
 ## 1. Starting point
