@@ -1,17 +1,8 @@
-// Assurer project styles (Milestone 0 placeholder theme).
-// Colors are deliberately neutral; brand tokens arrive in a later milestone.
-
-:root {
-  --assurer-navy: #0b2545;
-  --assurer-blue: #13315c;
-  --assurer-accent: #1f7a8c;
-  --assurer-light: #eef4ed;
-  --assurer-text: #1d2733;
-  --assurer-radius: 10px;
-}
+// Assurer project styles (placeholder theme). Colours, spacing and shape
+// come from the design tokens in _tokens.scss (m1-020).
 
 body {
-  color: var(--assurer-text);
+  color: var(--assurer-color-text);
 }
 
 .assurer-wrapper {
@@ -22,8 +13,8 @@ body {
 
 .assurer-demo-notice {
   padding: 6px 16px;
-  background: #fff3cd;
-  color: #664d03;
+  background: var(--assurer-color-notice-bg);
+  color: var(--assurer-color-notice-text);
   font-size: 13px;
   text-align: center;
 }
@@ -48,13 +39,13 @@ body {
 }
 
 .assurer-header__brand {
-  color: var(--assurer-navy);
+  color: var(--assurer-color-primary);
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.02em;
 
-  span { color: var(--assurer-accent); }
-  &:visited { color: var(--assurer-navy); }
+  span { color: var(--assurer-color-accent); }
+  &:visited { color: var(--assurer-color-primary); }
 }
 
 .assurer-main {
@@ -63,23 +54,23 @@ body {
 
 .assurer-footer {
   padding: 32px 16px;
+  color: var(--assurer-color-text-muted);
   font-size: 14px;
   text-align: center;
-  opacity: 0.8;
 }
 
 .assurer-hint {
   padding: 16px;
-  border: 1px dashed var(--assurer-accent);
+  border: 1px dashed var(--assurer-color-accent);
   border-radius: var(--assurer-radius);
-  background: var(--assurer-light);
+  background: var(--assurer-color-surface-alt);
 }
 
 // Buttons
 .assurer-button {
   display: inline-block;
   padding: 12px 24px;
-  border: 2px solid var(--assurer-accent);
+  border: 2px solid var(--assurer-color-accent);
   border-radius: 999px;
   font-weight: 600;
   line-height: 1;
@@ -87,14 +78,14 @@ body {
 
   &--primary,
   &--primary:visited {
-    background: var(--assurer-accent);
-    color: #fff;
+    background: var(--assurer-color-accent);
+    color: var(--assurer-color-on-accent);
   }
 
   &--outline,
   &--outline:visited {
     background: transparent;
-    color: var(--assurer-accent);
+    color: var(--assurer-color-accent);
   }
 
   &:hover,
@@ -107,13 +98,13 @@ body {
 // Hero
 .assurer-hero {
   position: relative;
-  margin: 0 0 48px;
+  margin: 0 0 var(--assurer-space-section);
   padding: 96px 24px;
   border-radius: var(--assurer-radius);
-  background-color: var(--assurer-navy);
+  background-color: var(--assurer-color-primary);
   background-position: center;
   background-size: cover;
-  color: #fff;
+  color: var(--assurer-color-on-primary);
   overflow: hidden;
 
   &::before {
@@ -123,9 +114,9 @@ body {
     pointer-events: none;
   }
 
-  &--overlay-dark::before { background: rgba(11, 37, 69, 0.6); }
-  &--overlay-light::before { background: rgba(255, 255, 255, 0.7); }
-  &--overlay-light { color: var(--assurer-navy); }
+  &--overlay-dark::before { background: var(--assurer-overlay-dark); }
+  &--overlay-light::before { background: var(--assurer-overlay-light); }
+  &--overlay-light { color: var(--assurer-color-primary); }
 
   h1, h2 {
     margin: 0 0 16px;
@@ -161,21 +152,21 @@ body {
 .assurer-hero--overlay-dark .assurer-button--outline:visited,
 .assurer-hero--overlay-none .assurer-button--outline,
 .assurer-hero--overlay-none .assurer-button--outline:visited {
-  border-color: #fff;
-  color: #fff;
+  border-color: var(--assurer-color-on-primary);
+  color: var(--assurer-color-on-primary);
 }
 
 // Slideshow
 .assurer-slideshow {
   position: relative;
-  margin: 0 0 48px;
+  margin: 0 0 var(--assurer-space-section);
 }
 
 .assurer-slideshow__track {
   position: relative;
   aspect-ratio: 16 / 7;
   border-radius: var(--assurer-radius);
-  background: var(--assurer-light);
+  background: var(--assurer-color-surface-alt);
   overflow: hidden;
 }
 
@@ -226,7 +217,7 @@ body {
 .assurer-slideshow__prev,
 .assurer-slideshow__next {
   padding: 4px 12px;
-  color: var(--assurer-navy);
+  color: var(--assurer-color-primary);
   font-size: 1.75rem;
   line-height: 1;
 }
@@ -241,9 +232,9 @@ body {
   height: 12px;
   padding: 0;
   border-radius: 50%;
-  background: #c3cdd6 !important;
+  background: var(--assurer-color-border-strong) !important;
 
-  &.is-active { background: var(--assurer-accent) !important; }
+  &.is-active { background: var(--assurer-color-accent) !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -252,7 +243,7 @@ body {
 
 // Product cards
 .assurer-products {
-  margin: 0 0 48px;
+  margin: 0 0 var(--assurer-space-section);
 }
 
 .assurer-products__intro {
@@ -292,9 +283,9 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 1px solid #dde3e8;
+  border: 1px solid var(--assurer-color-border);
   border-radius: var(--assurer-radius);
-  background: #fff;
+  background: var(--assurer-color-surface);
   overflow: hidden;
 }
 
@@ -317,8 +308,8 @@ body {
   margin-bottom: 8px;
   padding: 2px 10px;
   border-radius: 999px;
-  background: var(--assurer-light);
-  color: var(--assurer-accent);
+  background: var(--assurer-color-surface-alt);
+  color: var(--assurer-color-accent);
   font-size: 12px;
   font-weight: 600;
 }
@@ -331,7 +322,7 @@ body {
 .assurer-card__link {
   margin-top: auto;
   padding-top: 12px;
-  color: var(--assurer-accent);
+  color: var(--assurer-color-accent);
   font-weight: 600;
 }
 
@@ -339,7 +330,7 @@ body {
 .apos-form,
 [data-apos-form-form] {
   max-width: 640px;
-  margin: 0 auto 48px;
+  margin: 0 auto var(--assurer-space-section);
 }
 
 .assurer-form__label {
@@ -354,13 +345,13 @@ body {
   box-sizing: border-box;
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #b8c2cc;
-  border-radius: 6px;
+  border: 1px solid var(--assurer-color-border-strong);
+  border-radius: var(--assurer-radius-small);
   font: inherit;
 }
 
 .assurer-form__error {
-  color: #b02a37;
+  color: var(--assurer-color-danger);
   font-size: 14px;
 }
 
@@ -385,8 +376,8 @@ body {
   padding: 12px 28px;
   border: 0;
   border-radius: 999px;
-  background: var(--assurer-accent);
-  color: #fff;
+  background: var(--assurer-color-accent);
+  color: var(--assurer-color-on-accent);
   font: inherit;
   font-weight: 600;
   cursor: pointer;

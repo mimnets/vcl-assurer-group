@@ -10,6 +10,7 @@
 // `data` is deliberately not destructured here. Props passed by a page
 // template arrive as this template's data, so `data.main` is the `main` prop
 // rather than anything belonging to the page document.
+import { breadcrumbItems } from '../lib/breadcrumbs.js';
 import { linkHref } from '../lib/link.js';
 import { pageTitle } from '../lib/seo-title.js';
 
@@ -113,19 +114,50 @@ function Nav({
   );
 }
 
+// The single place the site's name or logo is drawn (CA-4). A text
+// placeholder until the vector logo arrives (D-CONTENT-12); then replace the
+// text with the SVG and keep the link and its accessible name.
+function BrandMark() {
+  return (
+    <a className="assurer-header__brand" href="/">
+      Assurer <span>World</span>
+    </a>
+  );
+}
+
 function Header({
   user, home, page, global
 }) {
   return (
     <header className="assurer-header">
-      <a className="assurer-header__brand" href="/">
-        Assurer <span>World</span>
-      </a>
+      <BrandMark />
       <Nav home={home} page={page} global={global} />
       {!user && (
         <a className="assurer-button assurer-button--outline assurer-header__login" href="/login">Log in</a>
       )}
     </header>
+  );
+}
+
+// Breadcrumbs on every page below home (CA-4), outside <main> so the skip
+// link passes them. Items match the BreadcrumbList JSON-LD (lib/breadcrumbs.js).
+function Breadcrumbs({ data }) {
+  const items = breadcrumbItems(data);
+  if (!items.length) {
+    return null;
+  }
+  return (
+    <nav className="assurer-breadcrumbs" aria-label="Breadcrumb">
+      <ol className="assurer-breadcrumbs__list">
+        {items.map(item => (
+          <li className="assurer-breadcrumbs__item">
+            {item.current
+              ? <span aria-current="page">{item.title}</span>
+              : <a href={item.url}>{item.title}</a>}
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }
 
@@ -197,6 +229,7 @@ export default function (data, { Extend, apos }) {
           <a className="assurer-skip-link" href="#main-content">Skip to content</a>
           <DemoNotice />
           <Header user={data.user} home={data.home} page={data.page} global={data.global} />
+          <Breadcrumbs data={data} />
           <main className="assurer-main" id="main-content" tabindex="-1">
             {data.main}
           </main>

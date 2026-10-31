@@ -4,13 +4,25 @@ h3 {
   text-align: center;
 }
 
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--assurer-font-heading, inherit);
+}
+
+// Modular scale from _tokens.scss (m1-020).
 h1 {
-  font-size: 2.5em;
+  font-size: var(--assurer-text-h1);
   font-weight: 600;
 }
 
+h2 { font-size: var(--assurer-text-h2); }
+h3 { font-size: var(--assurer-text-h3); }
+h4 { font-size: var(--assurer-text-h4); }
+
 a {
-  color: $color-purple;
+  color: var(--assurer-color-link);
   text-decoration: none;
 
   &:hover,
@@ -19,12 +31,12 @@ a {
   }
 
   &:visited {
-    color: $color-purple-light;
+    color: var(--assurer-color-link-visited);
   }
 }
 
 ::selection {
-  background-color: $color-gold;
+  background-color: var(--assurer-color-selection);
 }
 
 code {

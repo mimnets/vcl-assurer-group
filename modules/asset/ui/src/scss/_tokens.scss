@@ -1,0 +1,75 @@
+// Design tokens (m1-020, CA-4 scaffolding). The only place colour, type,
+// spacing and shape values are set; project styles use these properties.
+//
+// PLACEHOLDERS: every value below is a neutral stand-in, not the Assurer
+// brand. Brand values come only from the owner's assets (D-CONTENT-12); swap
+// them here and re-run the contrast checks in docs/content/design-tokens.md.
+// The pairs noted there pass WCAG 2.2 AA with these placeholders.
+
+// Breakpoints (Sass, because media queries cannot read custom properties).
+// Mobile first: min-width queries at these widths.
+$bp-tablet: 768px;
+$bp-desktop: 1024px;
+
+:root {
+  // Brand colours (slots for the supplied palette)
+  --assurer-color-primary: #0b2545;
+  --assurer-color-accent: #1c7080;
+  --assurer-color-on-primary: #fff;
+  --assurer-color-on-accent: #fff;
+
+  // Neutrals
+  --assurer-color-text: #1d2733;
+  --assurer-color-text-muted: #4a525c;
+  --assurer-color-surface: #fff;
+  --assurer-color-surface-alt: #eef4ed;
+  --assurer-color-border: #d5dde5;
+  --assurer-color-border-subtle: #eef1f4;
+  // Form fields and controls: at least 3:1 against the surface.
+  --assurer-color-border-strong: #6b7785;
+
+  // Links and states
+  --assurer-color-link: #6236ff;
+  --assurer-color-link-visited: #6a3fd8;
+  --assurer-color-focus: var(--assurer-color-accent);
+  --assurer-color-danger: #b02a37;
+  --assurer-color-notice-bg: #fff3cd;
+  --assurer-color-notice-text: #664d03;
+  --assurer-color-selection: #f7b500;
+
+  // Image overlays and raised panels
+  --assurer-overlay-dark: rgb(11 37 69 / 60%);
+  --assurer-overlay-light: rgb(255 255 255 / 70%);
+  --assurer-shadow-raised: 0 12px 24px rgb(11 37 69 / 15%);
+
+  // Typography. The body font is still set by Global Styles (D-M0-11), so
+  // this stack applies only where Global Styles has no value. Fonts are
+  // self-hosted when supplied; no third-party font requests.
+  --assurer-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  // --assurer-font-heading: set when the brand has a separate heading face;
+  // headings inherit the body font until then.
+
+  // Modular scale 1.25, in em so headings follow the body size Global
+  // Styles sets per breakpoint.
+  --assurer-text-small: 0.875em;
+  --assurer-text-h4: 1.25em;
+  --assurer-text-h3: 1.563em;
+  --assurer-text-h2: 1.953em;
+  --assurer-text-h1: 2.441em;
+
+  // Spacing: 4 px base, 8 steps
+  --assurer-space-1: 4px;
+  --assurer-space-2: 8px;
+  --assurer-space-3: 12px;
+  --assurer-space-4: 16px;
+  --assurer-space-5: 24px;
+  --assurer-space-6: 32px;
+  --assurer-space-7: 48px;
+  --assurer-space-8: 64px;
+  // Gap between page sections
+  --assurer-space-section: var(--assurer-space-7);
+
+  // Shape
+  --assurer-radius: 10px;
+  --assurer-radius-small: 6px;
+}

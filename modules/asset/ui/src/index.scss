@@ -2,6 +2,7 @@
 // `.bp-` classes are the starter kit's base styles (core widget classNames
 // set in app.js); `.assurer-` classes are this project's.
 @import './scss/_settings';
+@import './scss/_tokens';
 @import './scss/_type';
 @import './scss/_layout';
 @import './scss/_widgets';
