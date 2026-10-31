@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Task** | m1-020 (CA-4 scaffolding) |
+| **Task** | m1-020 (CA-4 scaffolding) · m1-021 (brand values) |
 | **Date** | 2026-10-31 |
-| **Status** | **Placeholder values.** The token slots are in place; every value is a neutral stand-in until the owner supplies the brand assets (D-CONTENT-12). Nothing here is the Assurer brand. |
-| **Source** | `modules/asset/ui/src/scss/_tokens.scss` |
+| **Status** | **Brand values from the live site, pending the owner's confirmation** (m1-021). The owner directed the agent to take colours, font, logo and favicon from the public pages of www.assurerworld.com (D-CONTENT-12). No brand guide or vector logo yet. The site's orange is darkened for text to pass WCAG 2.2 AA (§3). |
+| **Source** | `modules/asset/ui/src/scss/_tokens.scss` · `_fonts.scss` · `public/fonts/roboto/` · `public/images/brand/` |
 | **Related** | [Editorial and design requirements](./editorial-and-design-requirements.md) §4–§7 · [Implementation plan](./implementation-plan-and-risks.md) (CA-4) |
 
 ## 1. How the theme is set up
@@ -16,11 +16,14 @@
   lightbox (a dark media viewer) and the slideshow caption gradient (text over photographs).
 - Breakpoints are Sass variables (`$bp-tablet: 768px`, `$bp-desktop: 1024px`), because media
   queries cannot read custom properties.
-- The site name or logo is drawn in one place: `BrandMark` in `views/layout.jsx`.
+- The site name or logo is drawn in one place: `BrandMark` in `views/layout.jsx`. Owner's rule
+  (m1-021): the logo alone when there is one, otherwise the text name, never both. The image's
+  alternative text "Assurer World" names the home link. Set `LOGO` to `null` for the text name.
+  Favicon links are in `FaviconLinks` in the same file.
 - Starter-kit leftovers not routed through tokens: `$color-*` in `_settings.scss`, used only by
   the unused `.bp-button` class in `_type.scss`.
 
-## 2. Swapping in the brand (when D-CONTENT-12 is supplied)
+## 2. Swapping in the brand (D-CONTENT-12)
 
 | Supplied asset | Change | Token or file |
 |---|---|---|
@@ -28,40 +31,60 @@
 | Accent colour | Buttons, card links, badges, focus ring | `--assurer-color-accent`, `--assurer-color-on-accent`, `--assurer-color-focus` |
 | Neutrals | Text, muted text, surfaces, borders | `--assurer-color-text`, `-text-muted`, `-surface`, `-surface-alt`, `-border`, `-border-subtle`, `-border-strong` |
 | Link colours | Links in content | `--assurer-color-link`, `--assurer-color-link-visited` |
-| Body font (self-hosted files) | Add `@font-face` with files under the asset module, set the stack | `--assurer-font-body`. **Global Styles also sets the body font** (D-M0-11), and its saved value wins over the token; set it to the brand stack there or remove that control |
+| Body font (self-hosted files) | `@font-face` in `_fonts.scss`, files under `public/fonts/` (absolute `/fonts/…` URLs: the dev build does not rewrite relative `url()` in Sass partials) | `--assurer-font-body`. Global Styles no longer has a body font control (m1-021) |
 | Heading font | Define the token (headings inherit the body font until then) | `--assurer-font-heading` |
-| Vector logo | Replace the text in `BrandMark` with the SVG; keep the link to `/` and an accessible name | `views/layout.jsx` |
-| Favicon | Not yet scaffolded | Later CA-4 step |
+| Vector logo | Point `LOGO` at the SVG; keep the link to `/` and the alternative text | `views/layout.jsx` |
+| Favicon | Replace the three PNGs, or derive them from the vector logo | `public/images/brand/`, `FaviconLinks` |
 
 After any swap, re-check every pair in §3 and update the table.
 
-## 3. Contrast of the placeholder palette (WCAG 2.2 AA)
+### Brand values in use (m1-021)
 
-Computed by the agent on 2026-10-31 (relative luminance formula). Text needs 4.5:1; large text
-and UI components need 3:1.
+Taken from the public pages of www.assurerworld.com on 2026-10-31 (computed styles, read-only), at
+the owner's direction. The owner still confirms them as the official brand.
+
+| Token | Value | Source on the live site |
+|---|---|---|
+| Primary | `#212d68` | Dark navy section background |
+| Accent | `#a85a00` | Menu orange `#db740c` darkened: the original is 3.22:1 on white and fails AA for text and under white text |
+| Text / muted | `#333` / `#5d5d5d` | Body text / secondary text |
+| Surface alt | `#f5f5f5` | Light grey section background |
+| Link / visited | `#1e44a4` / `#434b74` | Blue headings / dark blue-grey heading |
+| Selection | `#ff9c38` | Orange band background (background only) |
+| Body font | Roboto 400, 500, 700 (latin) | The site's Elementor typography; self-hosted from `@fontsource/roboto` 5.3.0, SIL OFL 1.1 (`public/fonts/roboto/OFL.txt`) |
+| Logo | `assurer-logo.png`, 168 × 168, shown at 56 px | `assure-logo4.png` (300 × 300, textured) resized; the owner chose it over the flat "AW Final Logo.png" in session |
+| Favicon | `favicon-32.png`, `favicon-192.png`, `apple-touch-icon.png` | `cropped-assure-center-*` PNGs, unchanged |
+
+Not taken: the Elementor kit's global colours (`#6EC1E4`, `#61CE70`, …) and "Roboto Slab", which
+are Elementor defaults the live site does not use. Other oranges on the site (`#f07901`,
+`#e07a00`) were not given tokens. The flat logo file "AW Final Logo.png" (navy `#434b74`, orange
+`#e19e59`) was tried and set aside by the owner.
+
+## 3. Contrast of the brand palette (WCAG 2.2 AA)
+
+Computed by the agent on 2026-10-31 for the m1-021 values (relative luminance formula). Text
+needs 4.5:1; large text and UI components need 3:1.
 
 | Pair | Ratio | Result |
 |---|---|---|
-| Text `#1d2733` on surface `#fff` | 15.11 | PASS |
-| Text on surface-alt `#eef4ed` | 13.52 | PASS |
-| Primary `#0b2545` on surface | 15.39 | PASS |
-| White on primary (hero, skip link) | 15.39 | PASS |
-| Accent `#1c7080` on surface (card links, outline button) | 5.71 | PASS |
-| White on accent (primary button, submit) | 5.71 | PASS |
-| Accent on surface-alt (card badge) | 5.11 | PASS |
-| Muted text `#4a525c` on surface (footer, breadcrumbs) | 7.92 | PASS |
-| Link `#6236ff` on surface | 6.02 | PASS |
-| Visited link `#6a3fd8` on surface | 6.33 | PASS |
+| Text `#333` on surface `#fff` | 12.63 | PASS |
+| Text on surface-alt `#f5f5f5` | 11.59 | PASS |
+| Primary `#212d68` on surface | 12.81 | PASS |
+| Primary on surface-alt | 11.75 | PASS |
+| White on primary (hero, skip link) | 12.81 | PASS |
+| Accent `#a85a00` on surface (card links, outline button) | 5.09 | PASS |
+| White on accent (primary button, submit) | 5.09 | PASS |
+| Accent on surface-alt (card badge) | 4.67 | PASS |
+| Muted text `#5d5d5d` on surface (footer, breadcrumbs) | 6.58 | PASS |
+| Link `#1e44a4` on surface | 8.68 | PASS |
+| Visited link `#434b74` on surface | 8.41 | PASS |
 | Danger `#b02a37` on surface (form errors) | 6.50 | PASS |
 | Notice text `#664d03` on notice `#fff3cd` | 7.21 | PASS |
-| Focus ring (accent) on surface | 5.71 | PASS (3:1) |
+| Focus ring (accent) on surface | 5.09 | PASS (3:1) |
 | Strong border `#6b7785` on surface (form fields, Menu button, slideshow dots) | 4.56 | PASS (3:1) |
+| Text on selection `#ff9c38` | 6.06 | PASS |
 
-Values changed in m1-020 to pass: accent `#1f7a8c` → `#1c7080` (the badge was 4.45:1), visited
-link `#8264f1` → `#6a3fd8` (4.16:1), form-field border `#b8c2cc` → `#6b7785` (1.81:1), Menu
-button and slideshow dot `#c3cdd6` → `#6b7785` (1.61:1). The footer uses the muted text colour
-instead of `opacity: 0.8`. These are placeholder values, so the contrast must be checked again
-with the brand palette.
+The m1-020 placeholder table is in that task's report and in Git history.
 
 ## 4. Type and spacing scale
 

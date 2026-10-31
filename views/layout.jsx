@@ -114,14 +114,35 @@ function Nav({
   );
 }
 
-// The single place the site's name or logo is drawn (CA-4). A text
-// placeholder until the vector logo arrives (D-CONTENT-12); then replace the
-// text with the SVG and keep the link and its accessible name.
+// The single place the site's name or logo is drawn (CA-4). The owner's
+// rule (m1-021): the logo alone when there is one, otherwise the text name;
+// never both. The logo is the live site's textured PNG, the owner's choice
+// (D-CONTENT-12); swap in an SVG when a vector master exists. Set LOGO to
+// null to fall back to the text name.
+const LOGO = {
+  src: '/images/brand/assurer-logo.png',
+  width: 56,
+  height: 56
+};
+
 function BrandMark() {
   return (
     <a className="assurer-header__brand" href="/">
-      Assurer <span>World</span>
+      {LOGO
+        ? <img className="assurer-header__logo" src={LOGO.src} alt="Assurer World" width={LOGO.width} height={LOGO.height} />
+        : <>Assurer <span>World</span></>}
     </a>
+  );
+}
+
+// Favicons from the live site (m1-021).
+function FaviconLinks() {
+  return (
+    <>
+      <link rel="icon" href="/images/brand/favicon-32.png" sizes="32x32" type="image/png" />
+      <link rel="icon" href="/images/brand/favicon-192.png" sizes="192x192" type="image/png" />
+      <link rel="apple-touch-icon" href="/images/brand/apple-touch-icon.png" />
+    </>
   );
 }
 
@@ -224,6 +245,7 @@ export default function (data, { Extend, apos }) {
     <Extend
       templateName={data.outerLayout}
       title={title}
+      extraHead={<FaviconLinks />}
       main={
         <div className="assurer-wrapper">
           <a className="assurer-skip-link" href="#main-content">Skip to content</a>
