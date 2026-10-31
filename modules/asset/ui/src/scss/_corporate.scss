@@ -1,8 +1,8 @@
 // Corporate content model styles (m1-014): two-level main menu, footer from
 // Global Content, division and product category pages. Placeholder theme
-// only; brand tokens arrive with the brand assets (D-CONTENT-12).
+// only; values come from the design tokens in _tokens.scss (m1-020).
 
-$nav-desktop: 1024px;
+$nav-desktop: $bp-desktop;
 
 .assurer-visually-hidden {
   position: absolute !important;
@@ -22,9 +22,9 @@ $nav-desktop: 1024px;
   left: 8px;
   z-index: 100;
   padding: 8px 16px;
-  border-radius: 6px;
-  background: var(--assurer-navy);
-  color: #fff;
+  border-radius: var(--assurer-radius-small);
+  background: var(--assurer-color-primary);
+  color: var(--assurer-color-on-primary);
   transform: translateY(-200%);
 
   &:focus {
@@ -42,7 +42,7 @@ $nav-desktop: 1024px;
 .assurer-main {
   a:focus-visible,
   button:focus-visible {
-    outline: 3px solid var(--assurer-accent);
+    outline: 3px solid var(--assurer-color-focus);
     outline-offset: 2px;
   }
 }
@@ -74,11 +74,11 @@ $nav-desktop: 1024px;
 .assurer-nav__sublink {
   display: inline-block;
   padding: 10px 4px;
-  color: var(--assurer-navy);
+  color: var(--assurer-color-primary);
   text-decoration: none;
   overflow-wrap: anywhere;
 
-  &:visited { color: var(--assurer-navy); }
+  &:visited { color: var(--assurer-color-primary); }
   &:hover { text-decoration: underline; }
 
   &[aria-current="page"],
@@ -101,7 +101,7 @@ $nav-desktop: 1024px;
   border: 1px solid transparent;
   border-radius: 6px;
   background: none;
-  color: var(--assurer-navy);
+  color: var(--assurer-color-primary);
   font: inherit;
   cursor: pointer;
 }
@@ -113,7 +113,7 @@ $nav-desktop: 1024px;
   min-width: 44px;
   min-height: 44px;
   padding: 0 12px;
-  border-color: #c3cdd6;
+  border-color: var(--assurer-color-border-strong);
   font-weight: 600;
 }
 
@@ -200,9 +200,9 @@ $nav-desktop: 1024px;
       align-items: stretch;
       max-height: calc(100vh - 120px);
       padding: 8px 16px 16px;
-      border-top: 1px solid #dde3e8;
-      background: #fff;
-      box-shadow: 0 12px 24px rgba(11, 37, 69, 0.15);
+      border-top: 1px solid var(--assurer-color-border);
+      background: var(--assurer-color-surface);
+      box-shadow: var(--assurer-shadow-raised);
       overflow-y: auto;
     }
 
@@ -215,7 +215,7 @@ $nav-desktop: 1024px;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #eef1f4;
+      border-bottom: 1px solid var(--assurer-color-border-subtle);
     }
 
     .assurer-nav__link {
@@ -265,10 +265,10 @@ $nav-desktop: 1024px;
       z-index: 50;
       min-width: 240px;
       padding: 8px 0 !important;
-      border: 1px solid #dde3e8;
+      border: 1px solid var(--assurer-color-border);
       border-radius: 8px;
-      background: #fff;
-      box-shadow: 0 12px 24px rgba(11, 37, 69, 0.15);
+      background: var(--assurer-color-surface);
+      box-shadow: var(--assurer-shadow-raised);
     }
 
     .assurer-nav__sublink {
@@ -282,6 +282,58 @@ $nav-desktop: 1024px;
 @media (min-width: $nav-desktop) and (hover: hover) {
   .assurer-nav--enhanced .assurer-nav__item--parent:hover > .assurer-nav__submenu {
     display: block;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Breadcrumbs (m1-020, CA-4)
+// ---------------------------------------------------------------------------
+
+.assurer-breadcrumbs {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 0 var(--assurer-space-4) var(--assurer-space-3);
+  box-sizing: border-box;
+  color: var(--assurer-color-text-muted);
+  font-size: var(--assurer-text-small);
+
+  a:focus-visible {
+    outline: 3px solid var(--assurer-color-focus);
+    outline-offset: 2px;
+  }
+}
+
+.assurer-breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assurer-breadcrumbs__item {
+  overflow-wrap: anywhere;
+
+  // Separator drawn in CSS with empty alternative text, so screen readers
+  // do not announce it (the first line is for browsers without that syntax).
+  & + &::before {
+    content: '/';
+    content: '/' / '';
+    margin: 0 var(--assurer-space-2);
+    color: var(--assurer-color-text-muted);
+  }
+
+  a {
+    display: inline-block;
+    padding: var(--assurer-space-1) 0;
+    color: var(--assurer-color-text-muted);
+    text-decoration: underline;
+  }
+
+  [aria-current="page"] {
+    color: var(--assurer-color-text);
+    font-weight: 600;
   }
 }
 
@@ -331,7 +383,7 @@ $nav-desktop: 1024px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 24px;
-  margin: 24px 0 48px;
+  margin: 24px 0 var(--assurer-space-section);
   padding: 0;
   list-style: none;
 }
@@ -381,7 +433,7 @@ $nav-desktop: 1024px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 24px;
-  margin: 16px 0 48px;
+  margin: 16px 0 var(--assurer-space-section);
   padding: 0;
   list-style: none;
 }

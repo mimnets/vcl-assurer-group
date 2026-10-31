@@ -55,7 +55,7 @@ Verified by the agent as a non-admin editor (not human acceptance; see the [m1-0
 |---|---|---|---|
 | Site header with two-level menu | `views/layout.jsx`, `modules/asset/ui/src/nav.js` | all | **Implemented (m1-014)**: page tree, two levels, core "Hide in Navigation", keyboard and touch, optional header button from Global Content |
 | Footer from global settings | `views/layout.jsx` + global | all | **Implemented (m1-014)**: footer text, contact, locations, social links, copyright name; falls back to the old line when empty |
-| Breadcrumbs | layout | all except home | **Planned** |
+| Breadcrumbs | `views/layout.jsx`, `lib/breadcrumbs.js` | all except home | **Implemented (m1-020)**: same items as the BreadcrumbList JSON-LD; outside `<main>` |
 | Hero | `assurer-hero` | home, divisions, categories, corporate pages | Implemented |
 | Slideshow | `assurer-slideshow` | home | Implemented |
 | Rich text, image, video, columns | core | everywhere | Implemented |
@@ -69,6 +69,9 @@ Verified by the agent as a non-admin editor (not human acceptance; see the [m1-0
 | Downloads list | `assurer-downloads` | downloads, categories | Planned |
 | Contact form | `@apostrophecms/form` | contact | Implemented (go-live decisions open: D-FORM-1…5) |
 | CTA band | `assurer-hero` (no image) | any | Implemented (reuse) |
+
+**m1-020:** colour, type, spacing and shape values are now design tokens with placeholder values; see
+[design tokens and brand swap guide](./design-tokens.md).
 
 ## 3. Reusable templates (page types and their default sections)
 
