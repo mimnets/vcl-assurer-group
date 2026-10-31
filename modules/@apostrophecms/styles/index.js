@@ -7,13 +7,8 @@ export default {
       // TYPOGRAPHY CONTROLS
       // ============================================
 
-      bodyFont: {
-        type: 'string',
-        label: 'Body Font Family',
-        selector: 'body',
-        property: 'font-family',
-        def: 'system-ui, sans-serif'
-      },
+      // No body font control (m1-021): the brand font is fixed by the
+      // --assurer-font-body token, so editors cannot change it (D-M0-11).
       lineHeight: {
         type: 'range',
         label: 'Line Height',
@@ -305,7 +300,7 @@ export default {
           // Section: Base typography
           base: {
             label: 'Base Typography',
-            fields: [ 'bodyFont', 'lineHeight', 'letterSpacing' ]
+            fields: [ 'lineHeight', 'letterSpacing' ]
           },
           // Section: Responsive typography
           responsive: {

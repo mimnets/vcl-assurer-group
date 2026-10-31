@@ -1,0 +1,26 @@
+// Self-hosted Roboto (m1-021, D-CONTENT-12). Latin subset, weights 400,
+// 500 and 700, from @fontsource/roboto 5.3.0 (SIL OFL 1.1, see
+// public/fonts/roboto/OFL.txt). No third-party font requests.
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/roboto/roboto-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/roboto/roboto-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/roboto/roboto-latin-700-normal.woff2') format('woff2');
+}

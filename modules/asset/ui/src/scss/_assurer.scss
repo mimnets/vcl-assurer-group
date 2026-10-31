@@ -48,6 +48,12 @@ body {
   &:visited { color: var(--assurer-color-primary); }
 }
 
+.assurer-header__logo {
+  display: block;
+  width: auto;
+  height: 56px;
+}
+
 .assurer-main {
   flex-grow: 1;
 }

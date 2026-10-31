@@ -1,10 +1,12 @@
-// Design tokens (m1-020, CA-4 scaffolding). The only place colour, type,
-// spacing and shape values are set; project styles use these properties.
+// Design tokens (m1-020 scaffolding, m1-021 brand values). The only place
+// colour, type, spacing and shape values are set; project styles use these
+// properties.
 //
-// PLACEHOLDERS: every value below is a neutral stand-in, not the Assurer
-// brand. Brand values come only from the owner's assets (D-CONTENT-12); swap
-// them here and re-run the contrast checks in docs/content/design-tokens.md.
-// The pairs noted there pass WCAG 2.2 AA with these placeholders.
+// BRAND (m1-021): colours and font taken from the live assurerworld.com at
+// the owner's direction (D-CONTENT-12), pending the owner's confirmation.
+// The site's orange is darkened for text and buttons to pass WCAG 2.2 AA.
+// After any change, re-run the contrast checks in
+// docs/content/design-tokens.md.
 
 // Breakpoints (Sass, because media queries cannot read custom properties).
 // Mobile first: min-width queries at these widths.
@@ -12,40 +14,40 @@ $bp-tablet: 768px;
 $bp-desktop: 1024px;
 
 :root {
-  // Brand colours (slots for the supplied palette)
-  --assurer-color-primary: #0b2545;
-  --assurer-color-accent: #1c7080;
+  // Brand colours. Primary: the site's navy. Accent: the site's orange
+  // #db740c (3.22:1 on white) darkened to pass AA as text and under white.
+  --assurer-color-primary: #212d68;
+  --assurer-color-accent: #a85a00;
   --assurer-color-on-primary: #fff;
   --assurer-color-on-accent: #fff;
 
   // Neutrals
-  --assurer-color-text: #1d2733;
-  --assurer-color-text-muted: #4a525c;
+  --assurer-color-text: #333;
+  --assurer-color-text-muted: #5d5d5d;
   --assurer-color-surface: #fff;
-  --assurer-color-surface-alt: #eef4ed;
+  --assurer-color-surface-alt: #f5f5f5;
   --assurer-color-border: #d5dde5;
   --assurer-color-border-subtle: #eef1f4;
   // Form fields and controls: at least 3:1 against the surface.
   --assurer-color-border-strong: #6b7785;
 
   // Links and states
-  --assurer-color-link: #6236ff;
-  --assurer-color-link-visited: #6a3fd8;
+  --assurer-color-link: #1e44a4;
+  --assurer-color-link-visited: #434b74;
   --assurer-color-focus: var(--assurer-color-accent);
   --assurer-color-danger: #b02a37;
   --assurer-color-notice-bg: #fff3cd;
   --assurer-color-notice-text: #664d03;
-  --assurer-color-selection: #f7b500;
+  --assurer-color-selection: #ff9c38;
 
   // Image overlays and raised panels
-  --assurer-overlay-dark: rgb(11 37 69 / 60%);
+  --assurer-overlay-dark: rgb(33 45 104 / 60%);
   --assurer-overlay-light: rgb(255 255 255 / 70%);
-  --assurer-shadow-raised: 0 12px 24px rgb(11 37 69 / 15%);
+  --assurer-shadow-raised: 0 12px 24px rgb(33 45 104 / 15%);
 
-  // Typography. The body font is still set by Global Styles (D-M0-11), so
-  // this stack applies only where Global Styles has no value. Fonts are
-  // self-hosted when supplied; no third-party font requests.
-  --assurer-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  // Typography. Roboto is self-hosted (_fonts.scss). Global Styles no
+  // longer sets the body font (m1-021), so this token decides it.
+  --assurer-font-body: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   // --assurer-font-heading: set when the brand has a separate heading face;
   // headings inherit the body font until then.
 
